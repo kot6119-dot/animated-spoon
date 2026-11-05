@@ -1,2 +1,60 @@
 <!doctype html>
-<html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wan 2.2 — оживить фото</title><style>body{font:17px -apple-system,sans-serif;background:#101827;color:#eef2f7;padding:24px}main{max-width:680px;margin:auto}input,textarea,button{box-sizing:border-box;width:100%;padding:14px;margin:10px 0;border-radius:9px;background:#1e293b;color:white;border:1px solid #64748b;font:inherit}button{background:#10b981;color:#06251b;font-weight:bold}video{width:100%}p{line-height:1.5}</style><main><h1>Оживляем фотографию</h1><p>Выберите фотографию Александра, напишите движение и запустите Wan 2.2. Генерация выполняется на бесплатном общем сервере Hugging Face, который иногда бывает занят.</p><label>Фотография</label><input id="photo" type="file" accept="image/*"><label>Описание движения</label><textarea id="prompt">Александр естественно улыбается и слегка поворачивает голову к камере. Реалистичное плавное движение.</textarea><label>Длительность (секунды)</label><input id="duration" type="number" min="0.5" max="4.5" step="0.5" value="3.5"><button id="go">Создать видео</button><p id="status" role="status">Ожидаю фотографию.</p><video id="result" controls playsinline hidden></video></main><script>const HF='https://cbensimon-wan2-2-fp8da-aoti-preview2.hf.space',photo=document.querySelector('#photo'),go=document.querySelector('#go'),status=document.querySelector('#status'),video=document.querySelector('#result');function parse(s){let e='message',d=[];for(const l of s.split('\n')){if(l.startsWith('event:'))e=l.slice(6).trim();if(l.startsWith('data:'))d.push(l.slice(5).trim())}return{e,d:d.join('\n')}}async function events(stream){const r=stream.getReader(),dec=new TextDecoder();let b='';while(1){const x=await r.read();if(x.done)break;b+=dec.decode(x.value,{stream:true});const parts=b.split('\n\n');b=parts.pop();for(const p of parts){const z=parse(p);if(z.e==='error')throw Error(z.d);if(z.e==='complete'){const a=JSON.parse(z.d),f=Array.isArray(a)?a[0]:null;if(f?.url)return f.url;if(f?.path)return HF+'/gradio_api/file='+f.path;throw Error('Ссылка на видео не пришла')}}}throw Error('Поток завершился без результата')}go.onclick=async()=>{if(!photo.files[0]){status.textContent='Сначала выберите фото.';return}go.disabled=true;video.hidden=true;status.textContent='Отправляю фото на Hugging Face…';try{const fd=new FormData();fd.append('files',photo.files[0],photo.files[0].name);const u=await fetch(HF+'/gradio_api/upload',{method:'POST',body:fd});if(!u.ok)throw Error('Сервер не принял фото: '+u.status);const paths=await u.json(),p=paths[0];const f={path:p,url:HF+'/gradio_api/file='+p,orig_name:photo.files[0].name,size:null,mime_type:null,meta:{_type:'gradio.FileData'}};const data=[f,null,document.querySelector('#prompt').value,6,'色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 画得不好的手部, 画得不好的脸部, 畸形的, 毁容的, 形态畸形的肢体, 手指融合, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走',Number(document.querySelector('#duration').value),1,1,42,true,6,'UniPCMultistep',3,16,false,true];const s=await fetch(HF+'/gradio_api/call/generate_video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data})});if(!s.ok)throw Error('Не удалось отправить задачу: '+s.status);const j=await s.json();status.textContent='Фото отправлено. Идёт генерация…';const q=await fetch(HF+'/gradio_api/call/generate_video/'+j.event_id,{headers:{Accept:'text/event-stream'}});if(!q.ok||!q.body)throw Error('Сервер не вернул поток результата');video.src=await events(q.body);video.hidden=false;status.textContent='Видео готово.'}catch(e){status.textContent='Ошибка: '+(e.message||e)+'. Возможно, сервер Hugging Face занят или браузер блокирует запрос.'}finally{go.disabled=false}};</script></main>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wan 2.2 — оживить фото</title>
+<style>
+body{font:17px -apple-system,sans-serif;background:#101827;color:#eef2f7;padding:24px}
+main{max-width:680px;margin:auto}
+input,textarea,button,.download{box-sizing:border-box;width:100%;padding:14px;margin:10px 0;border-radius:9px;background:#1e293b;color:white;border:1px solid #64748b;font:inherit}
+button{background:#10b981;color:#06251b;font-weight:bold}
+.download{display:block;text-align:center;text-decoration:none;background:#fbbf24;color:#302000;border:0;font-weight:bold}
+video{width:100%}
+p{line-height:1.5}
+</style>
+<main>
+<h1>Оживляем фотографию</h1>
+<p>Выберите фотографию Александра, напишите движение и запустите Wan 2.2. Генерация выполняется на бесплатном общем сервере Hugging Face, который иногда бывает занят.</p>
+<label>Фотография</label>
+<input id="photo" type="file" accept="image/*">
+<label>Описание движения</label>
+<textarea id="prompt">Александр естественно улыбается и слегка поворачивает голову к камере. Реалистичное плавное движение.</textarea>
+<label>Длительность (секунды)</label>
+<input id="duration" type="number" min="0.5" max="4.5" step="0.5" value="3.5">
+<button id="go">Создать видео</button>
+<p id="status" role="status">Ожидаю фотографию.</p>
+<video id="result" controls playsinline hidden></video>
+<a id="download" class="download" hidden target="_blank" rel="noopener">Скачать готовое видео</a>
+<p id="saveHelp" hidden>На iPhone: откройте видео по кнопке выше, нажмите «Поделиться» и выберите «Сохранить видео» или «Сохранить в Файлы».</p>
+</main>
+<script>
+const HF='https://cbensimon-wan2-2-fp8da-aoti-preview2.hf.space',
+photo=document.querySelector('#photo'),go=document.querySelector('#go'),
+status=document.querySelector('#status'),video=document.querySelector('#result'),
+download=document.querySelector('#download'),saveHelp=document.querySelector('#saveHelp');
+function parse(s){let e='message',d=[];for(const l of s.split('\\n')){if(l.startsWith('event:'))e=l.slice(6).trim();if(l.startsWith('data:'))d.push(l.slice(5).trim())}return{e,d:d.join('\\n')}}
+async function events(stream){const r=stream.getReader(),dec=new TextDecoder();let b='';while(1){const x=await r.read();if(x.done)break;b+=dec.decode(x.value,{stream:true});const parts=b.split('\\n\\n');b=parts.pop();for(const p of parts){const z=parse(p);if(z.e==='error')throw Error(z.d);if(z.e==='complete'){const a=JSON.parse(z.d),f=Array.isArray(a)?a[0]:null;if(f?.url)return f.url;if(f?.path)return HF+'/gradio_api/file='+f.path;throw Error('Ссылка на видео не пришла')}}}throw Error('Поток завершился без результата')}
+go.onclick=async()=>{
+ if(!photo.files[0]){status.textContent='Сначала выберите фото.';return}
+ go.disabled=true;video.hidden=true;download.hidden=true;saveHelp.hidden=true;
+ status.textContent='Отправляю фото на Hugging Face…';
+ try{
+  const fd=new FormData();fd.append('files',photo.files[0],photo.files[0].name);
+  const u=await fetch(HF+'/gradio_api/upload',{method:'POST',body:fd});
+  if(!u.ok)throw Error('Сервер не принял фото: '+u.status);
+  const paths=await u.json(),p=paths[0];
+  const f={path:p,url:HF+'/gradio_api/file='+p,orig_name:photo.files[0].name,size:null,mime_type:null,meta:{_type:'gradio.FileData'}};
+  const data=[f,null,document.querySelector('#prompt').value,6,'色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 画得不好的手部, 画得不好的脸部, 畸形的, 毁容的, 形态畸形的肢体, 手指融合, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走',Number(document.querySelector('#duration').value),1,1,42,true,6,'UniPCMultistep',3,16,false,true];
+  const s=await fetch(HF+'/gradio_api/call/generate_video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data})});
+  if(!s.ok)throw Error('Не удалось отправить задачу: '+s.status);
+  const j=await s.json();status.textContent='Фото отправлено. Идёт генерация…';
+  const q=await fetch(HF+'/gradio_api/call/generate_video/'+j.event_id,{headers:{Accept:'text/event-stream'}});
+  if(!q.ok||!q.body)throw Error('Сервер не вернул поток результата');
+  const resultUrl=await events(q.body);
+  video.src=resultUrl;video.hidden=false;
+  download.href=resultUrl;download.download='alexander-video.mp4';download.hidden=false;saveHelp.hidden=false;
+  status.textContent='Видео готово. Его можно открыть и сохранить отдельно.';
+ }catch(e){status.textContent='Ошибка: '+(e.message||e)+'. Возможно, сервер Hugging Face занят или браузер блокирует запрос.'}
+ finally{go.disabled=false}
+};
+</script>
