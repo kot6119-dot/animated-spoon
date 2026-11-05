@@ -32,8 +32,8 @@ const HF='https://cbensimon-wan2-2-fp8da-aoti-preview2.hf.space',
 photo=document.querySelector('#photo'),go=document.querySelector('#go'),
 status=document.querySelector('#status'),video=document.querySelector('#result'),
 download=document.querySelector('#download'),saveHelp=document.querySelector('#saveHelp');
-function parse(s){let e='message',d=[];for(const l of s.split('\n')){if(l.startsWith('event:'))e=l.slice(6).trim();if(l.startsWith('data:'))d.push(l.slice(5).trim())}return{e,d:d.join('\n')}}
-async function events(stream){const r=stream.getReader(),dec=new TextDecoder();let b='';while(1){const x=await r.read();if(x.done)break;b+=dec.decode(x.value,{stream:true});const parts=b.split('\n\n');b=parts.pop();for(const p of parts){const z=parse(p);if(z.e==='error')throw Error(z.d);if(z.e==='complete'){const a=JSON.parse(z.d),f=Array.isArray(a)?a[0]:null;if(f?.url)return f.url;if(f?.path)return HF+'/gradio_api/file='+f.path;throw Error('Ссылка на видео не пришла')}}}throw Error('Поток завершился без результата')}
+function parse(s){let e='message',d=[];for(const l of s.split(/\r?\n/)){if(l.startsWith('event:'))e=l.slice(6).trim();if(l.startsWith('data:'))d.push(l.slice(5).trim())}return{e,d:d.join('\n')}}
+async function events(stream){const r=stream.getReader(),dec=new TextDecoder();let b='';async function handle(p){const z=parse(p);if(z.e==='error'){let msg=z.d;try{const v=JSON.parse(z.d);msg=(typeof v==='string'?v:(v?.message||v?.error||JSON.stringify(v)))}catch{}throw Error(msg&&msg!=='null'?'Сервер сообщил: '+msg:'Сервер вернул событие error без пояснения (data: null)')}if(z.e==='complete'){let a;try{a=JSON.parse(z.d)}catch{throw Error('Сервер прислал непонятный ответ: '+z.d.slice(0,180))}const f=Array.isArray(a)?a[0]:null;if(f?.url)return f.url;if(f?.path)return HF+'/gradio_api/file='+f.path;throw Error('Генерация завершилась, но сервер не вернул файл: '+z.d.slice(0,180))}return null}while(1){const x=await r.read();if(x.done)break;b+=dec.decode(x.value,{stream:true});const parts=b.split(/\r?\n\r?\n/);b=parts.pop();for(const p of parts){const url=await handle(p);if(url)return url}}if(b.trim()){const url=await handle(b);if(url)return url}throw Error('Сервер закрыл поток без события complete')}
 go.onclick=async()=>{
  if(!photo.files[0]){status.textContent='Сначала выберите фото.';return}
  go.disabled=true;video.hidden=true;download.hidden=true;saveHelp.hidden=true;
@@ -45,7 +45,7 @@ go.onclick=async()=>{
   if(!u.ok)throw Error('Сервер не принял фото: '+u.status);
   const paths=await u.json(),p=paths[0];
   const f={path:p,url:HF+'/gradio_api/file='+p,orig_name:photo.files[0].name,size:null,mime_type:null,meta:{_type:'gradio.FileData'}};
-  const data=[f,null,document.querySelector('#prompt').value,6,'色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 画得不好的手部, 画得不好的脸部, 畸形的, 毁容的, 形态畸形的肢体, 手指融合, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走',Number(document.querySelector('#duration').value),1,1,42,true,6,'UniPCMultistep',3,16,false,true];
+  const data=[f,null,document.querySelector('#prompt').value,6,'色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 画得不好的手部, 画得不好的脸部, 畸形的, 毁容的, 形态畸形的肢体, 手指融合, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走',Number(document.querySelector('#duration').value),1,1,42,true,6,'UniPCMultistep',3,16,true,true];
   stage='отправка задания на генерацию';
   const s=await fetch(HF+'/gradio_api/call/generate_video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data})});
   if(!s.ok)throw Error('Не удалось отправить задачу: '+s.status);
