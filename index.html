@@ -38,6 +38,7 @@ go.onclick=async()=>{
  if(!photo.files[0]){status.textContent='Сначала выберите фото.';return}
  go.disabled=true;video.hidden=true;download.hidden=true;saveHelp.hidden=true;
  status.textContent='Отправляю фото на Hugging Face…';
+ let stage='загрузка фотографии';
  try{
   const fd=new FormData();fd.append('files',photo.files[0],photo.files[0].name);
   const u=await fetch(HF+'/gradio_api/upload',{method:'POST',body:fd});
@@ -45,16 +46,18 @@ go.onclick=async()=>{
   const paths=await u.json(),p=paths[0];
   const f={path:p,url:HF+'/gradio_api/file='+p,orig_name:photo.files[0].name,size:null,mime_type:null,meta:{_type:'gradio.FileData'}};
   const data=[f,null,document.querySelector('#prompt').value,6,'色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 画得不好的手部, 画得不好的脸部, 畸形的, 毁容的, 形态畸形的肢体, 手指融合, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走',Number(document.querySelector('#duration').value),1,1,42,true,6,'UniPCMultistep',3,16,false,true];
+  stage='отправка задания на генерацию';
   const s=await fetch(HF+'/gradio_api/call/generate_video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data})});
   if(!s.ok)throw Error('Не удалось отправить задачу: '+s.status);
   const j=await s.json();status.textContent='Фото отправлено. Идёт генерация…';
+  stage='ожидание готового видео';
   const q=await fetch(HF+'/gradio_api/call/generate_video/'+j.event_id,{headers:{Accept:'text/event-stream'}});
   if(!q.ok||!q.body)throw Error('Сервер не вернул поток результата');
   const resultUrl=await events(q.body);
   video.src=resultUrl;video.hidden=false;
   download.href=resultUrl;download.download='alexander-video.mp4';download.hidden=false;saveHelp.hidden=false;
   status.textContent='Видео готово. Его можно открыть и сохранить отдельно.';
- }catch(e){status.textContent='Ошибка: '+(e.message||e)+'. Возможно, сервер Hugging Face занят или браузер блокирует запрос.'}
+ }catch(e){status.textContent='Ошибка на этапе «'+stage+'»: '+(e.message||e)+'. Сервер Hugging Face мог быть занят или соединение прервалось.'}
  finally{go.disabled=false}
 };
 </script>
