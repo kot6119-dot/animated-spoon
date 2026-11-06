@@ -39,7 +39,7 @@ jobs:
           cat > kaggle-notebook/kernel-metadata.json <<'EOF'
           {
             "id": "digitalstudio2026/notebook190c40d32f",
-            "title": "LTX-Video 13B experiment",
+            "title": "notebook190c40d32f",
             "code_file": "ltx-video.ipynb",
             "language": "python",
             "kernel_type": "notebook",
