@@ -2,7 +2,7 @@
 <html lang="ru">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wan 2.2 — оживить фото</title>
+<title>Digital Studio — панель управления</title>
 <style>
 body{font:17px -apple-system,sans-serif;background:#101827;color:#eef2f7;padding:24px}
 main{max-width:680px;margin:auto}
@@ -11,8 +11,19 @@ button{background:#10b981;color:#06251b;font-weight:bold}
 .download{display:block;text-align:center;text-decoration:none;background:#fbbf24;color:#302000;border:0;font-weight:bold}
 video{width:100%}
 p{line-height:1.5}
+.panel{border:1px solid #64748b;border-radius:12px;padding:16px;margin:0 0 28px}
+.panel a{display:block;box-sizing:border-box;padding:15px;margin:10px 0;border-radius:9px;text-align:center;text-decoration:none;background:#10b981;color:#06251b;font-weight:bold}
+.panel a.secondary{background:#1e293b;color:#eef2f7;border:1px solid #64748b}
 </style>
 <main>
+<section class="panel">
+<h1>Digital Studio 2026</h1>
+<p>Панель управления проектом. Здесь собраны основные переходы, чтобы не искать нужные разделы GitHub и Kaggle.</p>
+<a href="https://github.com/kot6119-dot/animated-spoon/actions/workflows/kaggle-check.yml">Проверить подключение Kaggle</a>
+<a class="secondary" href="https://www.kaggle.com/code">Открыть ноутбуки Kaggle</a>
+<a class="secondary" href="https://github.com/kot6119-dot/animated-spoon">Открыть проект на GitHub</a>
+<p>Проверка Kaggle запускается вручную на странице GitHub Actions. Эта панель не хранит пароли и секретные ключи.</p>
+</section>
 <h1>Оживляем фотографию</h1>
 <p>Выберите фотографию Александра, напишите движение и запустите Wan 2.2. Генерация выполняется на бесплатном общем сервере Hugging Face, который иногда бывает занят.</p>
 <label>Фотография</label>
