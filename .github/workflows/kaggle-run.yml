@@ -2,6 +2,9 @@ name: Запуск ноутбука Kaggle
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'kaggle-notebook/ltx-video.ipynb'
 
 jobs:
   run-kaggle:
