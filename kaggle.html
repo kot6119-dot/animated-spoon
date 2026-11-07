@@ -3,30 +3,48 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Digital Studio — запуск LTX Video</title>
+<title>Digital Studio — видеостудия</title>
 <style>
 *{box-sizing:border-box}
-body{font:21px -apple-system,BlinkMacSystemFont,sans-serif;background:#101827;color:#f3f4f6;padding:18px;line-height:1.5}
-main{max-width:680px;margin:0 auto}
-h1{font-size:30px;line-height:1.2}
-h2{font-size:23px;margin-top:28px}
-p{margin:12px 0}
-a{display:block;padding:22px 18px;margin:18px 0;border-radius:14px;background:#ef4444;color:white;text-decoration:none;font-weight:800;text-align:center}
-a.secondary{background:#263449;color:#f3f4f6;border:1px solid #64748b}
-.note{padding:15px;border:1px solid #64748b;border-radius:12px;margin-top:20px}
+body{margin:0;padding:18px;background:#101827;color:#f4f6fa;font:20px -apple-system,BlinkMacSystemFont,sans-serif;line-height:1.5}
+main{max-width:620px;margin:0 auto}
+h1{font-size:30px;margin:8px 0}
+.intro{color:#cbd5e1}
+.step{border:1px solid #526176;border-radius:15px;padding:18px;margin:16px 0;background:#182437}
+.num{font-size:15px;color:#a8b7cc}
+h2{font-size:22px;margin:4px 0 8px}
+p{margin:8px 0}
+a.button{display:block;text-align:center;text-decoration:none;font-weight:750;font-size:20px;padding:17px 12px;border-radius:12px;background:#e6b84b;color:#171717;margin-top:14px}
+a.secondary{display:block;text-align:center;text-decoration:none;color:#f4f6fa;border:1px solid #73839a;border-radius:12px;padding:14px;margin:12px 0}
+.note{font-size:16px;color:#cbd5e1;margin-top:22px}
 </style>
 </head>
 <body>
 <main>
 <h1>Digital Studio</h1>
-<p>Панель запуска нашего ноутбука LTX-Video в Kaggle.</p>
-<h2>Запуск</h2>
-<p>Нажми большую красную кнопку. Откроется GitHub Actions нашего публичного репозитория. Там останется нажать кнопку <strong>Run workflow</strong>, чтобы отправить ноутбук в Kaggle.</p>
-<a href="https://github.com/kot6119-dot/animated-spoon/actions/workflows/kaggle-run.yml">ЗАПУСТИТЬ LTX-VIDEO</a>
-<h2>Состояние запуска</h2>
-<a class="secondary" href="https://github.com/kot6119-dot/animated-spoon/actions">Посмотреть выполнение</a>
-<a class="secondary" href="https://www.kaggle.com/code/digitalstudio2026/notebook190c40d32f">Открыть ноутбук Kaggle</a>
-<div class="note"><strong>Важно.</strong> Ключи и пароли здесь не вводятся. Красная кнопка открывает страницу запуска GitHub. Сам ноутбук выполняется уже на стороне Kaggle.</div>
+<p class="intro">Три простых шага: загрузить фотографию, создать видео и сохранить результат.</p>
+
+<section class="step">
+<div class="num">ШАГ 1</div>
+<h2>Загрузить фотографию</h2>
+<p>Открой генератор. В поле «Input Image» выбери фотографию Александра из приложения «Фото» или из файлов iPhone.</p>
+<a class="button" href="https://www.kaggle.com/code/digitalstudio2026/notebook190c40d32f">ОТКРЫТЬ ГЕНЕРАТОР</a>
+</section>
+
+<section class="step">
+<div class="num">ШАГ 2</div>
+<h2>Создать видео</h2>
+<p>В генераторе введи описание движения и нажми кнопку Generate. Дождись окончания обработки.</p>
+</section>
+
+<section class="step">
+<div class="num">ШАГ 3</div>
+<h2>Скачать видео</h2>
+<p>Когда генерация завершится, появится готовый файл. Нажми Download, чтобы сохранить его на iPhone.</p>
+</section>
+
+<a class="secondary" href="https://github.com/kot6119-dot/animated-spoon/actions">Проверить состояние запуска</a>
+<p class="note">Если генератор ещё не открылся, сначала запусти ноутбук Kaggle. Эта страница служит простой навигацией и не хранит фотографии или видео.</p>
 </main>
 </body>
 </html>
