@@ -11,3 +11,5 @@ Inspect both known kernels and their runtime logs before any session is stopped.
 
 Check hardware-check kernel status too.
 Current read-only status refresh after isolated SD 1.5 test submission.
+
+Check fork-of-ltx-video-studio runtime status.
