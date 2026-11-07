@@ -27,3 +27,17 @@ jobs:
           kaggle kernels status digitalstudio2026/ltx-video-studio || true
           echo "=== RECENT KERNEL LOGS ==="
           kaggle kernels logs digitalstudio2026/ltx-video-studio 2>&1 | tail -n 180 || true
+          echo "=== GRADIO LINK CHECK ==="
+          python - <<'PY'
+          import urllib.request
+          url = "https://56d40960f0694dfb9b.gradio.live/"
+          try:
+              req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  print("HTTP_STATUS:", response.status)
+                  print("FINAL_URL:", response.geturl())
+                  print("CONTENT_TYPE:", response.headers.get("Content-Type"))
+                  print("BODY_SAMPLE:", response.read(500).decode("utf-8", "replace"))
+          except Exception as exc:
+              print("GRADIO_ENDPOINT_ERROR:", repr(exc))
+          PY
