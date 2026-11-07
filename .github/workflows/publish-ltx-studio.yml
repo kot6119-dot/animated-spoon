@@ -1,6 +1,7 @@
 name: Publish clean LTX Video Studio notebook
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'kaggle-notebook/ltx-video-studio.ipynb'
@@ -20,7 +21,7 @@ jobs:
       - name: Install Kaggle CLI
         run: python -m pip install --upgrade kaggle
 
-      - name: Prepare private notebook with GPU disabled
+      - name: Prepare private notebook with GPU enabled
         env:
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: |
@@ -36,7 +37,7 @@ jobs:
             "language": "python",
             "kernel_type": "notebook",
             "is_private": true,
-            "enable_gpu": false,
+            "enable_gpu": true,
             "enable_internet": true
           }
           EOF
