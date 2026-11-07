@@ -1,0 +1,48 @@
+name: Publish clean LTX Video Studio notebook
+
+on:
+  push:
+    paths:
+      - 'kaggle-notebook/ltx-video-studio.ipynb'
+
+jobs:
+  publish-notebook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --upgrade kaggle
+
+      - name: Prepare private notebook with GPU disabled
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo "Missing KAGGLE_API_TOKEN secret."
+            exit 1
+          fi
+          cat > kaggle-notebook/kernel-metadata.json <<'EOF'
+          {
+            "id": "digitalstudio2026/ltx-video-studio",
+            "title": "LTX Video Studio",
+            "code_file": "ltx-video-studio.ipynb",
+            "language": "python",
+            "kernel_type": "notebook",
+            "is_private": true,
+            "enable_gpu": false,
+            "enable_internet": true
+          }
+          EOF
+
+      - name: Push notebook definition to Kaggle (does not run it)
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          kaggle kernels push -p kaggle-notebook
