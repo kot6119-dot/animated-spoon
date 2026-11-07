@@ -1,28 +1,19 @@
-name: Запуск ноутбука Kaggle
+name: Удаление старого ноутбука Kaggle
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'kaggle-notebook/ltx-video.ipynb'
       - '.github/workflows/kaggle-run.yml'
 
 jobs:
-  run-kaggle:
+  delete-kaggle-notebook:
     runs-on: ubuntu-latest
     steps:
-      - name: Получить файлы репозитория
-        uses: actions/checkout@v4
+      - name: Установить Kaggle CLI
+        run: python -m pip install --upgrade kaggle
 
-      - name: Подготовка Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Установка Kaggle CLI
-        run: python -m pip install --upgrade kaggle six
-
-      - name: Проверка секретного ключа
+      - name: Удалить старый ноутбук Kaggle
         env:
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: |
@@ -30,99 +21,5 @@ jobs:
             echo "Не найден секрет KAGGLE_API_TOKEN."
             exit 1
           fi
-          echo "Секретный ключ найден."
-
-      - name: Остановить текущую сессию Kaggle через официальный API
-        env:
-          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
-        run: |
-          python - <<'PY'
-          import json, os, urllib.request, sys
-
-          URL = "https://www.kaggle.com/mcp"
-          TOKEN = os.environ["KAGGLE_API_TOKEN"]
-          headers = {
-              "Authorization": "Bearer " + TOKEN,
-              "Content-Type": "application/json",
-              "Accept": "application/json, text/event-stream",
-              "MCP-Protocol-Version": "2025-11-25",
-          }
-
-          def call_tool(name, request, ident):
-              payload = {
-                  "jsonrpc": "2.0",
-                  "id": ident,
-                  "method": "tools/call",
-                  "params": {"name": name, "arguments": {"request": request}},
-              }
-              req = urllib.request.Request(URL, data=json.dumps(payload).encode(),
-                                           headers=headers, method="POST")
-              with urllib.request.urlopen(req, timeout=45) as response:
-                  raw = response.read().decode("utf-8", "replace")
-              for line in raw.splitlines():
-                  if line.startswith("data: "):
-                      return json.loads(line[6:])
-              return json.loads(raw)
-
-          def find_version(obj):
-              if isinstance(obj, dict):
-                  for key, value in obj.items():
-                      if key in ("current_version_number", "currentVersionNumber") and isinstance(value, int):
-                          return value
-                      found = find_version(value)
-                      if found is not None:
-                          return found
-              elif isinstance(obj, list):
-                  for value in obj:
-                      found = find_version(value)
-                      if found is not None:
-                          return found
-              elif isinstance(obj, str):
-                  try:
-                      return find_version(json.loads(obj))
-                  except Exception:
-                      pass
-              return None
-
-          print("Запрашиваю метаданные именно нашего ноутбука...")
-          info = call_tool("get_notebook_info",
-                           {"user_name": "digitalstudio2026", "kernel_slug": "notebook190c40d32f"}, 1)
-          print("Ответ get_notebook_info получен.")
-          version = find_version(info)
-          if not version or version <= 0:
-              print("Не удалось безопасно определить числовой идентификатор версии/сессии. Отмена не отправлена.")
-              print(json.dumps(info, ensure_ascii=False)[:5000])
-              sys.exit(2)
-
-          print("Найден current_version_number =", version)
-          print("Отправляю Kaggle запрос на отмену этой сессии...")
-          result = call_tool("cancel_notebook_session", {"kernel_session_id": version}, 2)
-          print("Ответ отмены:")
-          print(json.dumps(result, ensure_ascii=False)[:3000])
-
-          print("Повторно проверяю состояние ноутбука...")
-          status = call_tool("get_notebook_session_status",
-                             {"user_name": "digitalstudio2026", "kernel_slug": "notebook190c40d32f"}, 3)
-          print("Итоговый статус:")
-          print(json.dumps(status, ensure_ascii=False)[:3000])
-          PY
-
-      - name: Отправить ноутбук на выполнение только при изменении самого ноутбука
-        if: contains(github.event.head_commit.modified, 'kaggle-notebook/ltx-video.ipynb')
-        env:
-          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
-        run: |
-          mkdir -p kaggle-notebook
-          cat > kaggle-notebook/kernel-metadata.json <<'EOF'
-          {
-            "id": "digitalstudio2026/notebook190c40d32f",
-            "title": "notebook190c40d32f",
-            "code_file": "ltx-video.ipynb",
-            "language": "python",
-            "kernel_type": "notebook",
-            "is_private": false,
-            "enable_gpu": true,
-            "enable_internet": true
-          }
-          EOF
-          kaggle kernels push -p kaggle-notebook
+          kaggle kernels delete digitalstudio2026/notebook190c40d32f --yes
+          echo "Команда удаления отправлена Kaggle."
