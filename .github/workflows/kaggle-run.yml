@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'kaggle-notebook/ltx-video.ipynb'
+      - '.github/workflows/kaggle-run.yml'
 
 jobs:
   run-kaggle:
@@ -31,11 +32,21 @@ jobs:
           fi
           echo "Секретный ключ найден."
 
-      - name: Подготовить папку ноутбука
-        run: mkdir -p kaggle-notebook
-
-      - name: Создать настройки ноутбука
+      - name: Проверить состояние ноутбука и список наших Kaggle kernels
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: |
+          echo "===== STATUS нашего ноутбука ====="
+          kaggle kernels status digitalstudio2026/notebook190c40d32f || true
+          echo "===== НАШИ KERNELS ====="
+          kaggle kernels list --mine --page-size 100 --csv || true
+
+      - name: Отправить ноутбук на выполнение только при изменении самого ноутбука
+        if: contains(github.event.head_commit.modified, 'kaggle-notebook/ltx-video.ipynb')
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          mkdir -p kaggle-notebook
           cat > kaggle-notebook/kernel-metadata.json <<'EOF'
           {
             "id": "digitalstudio2026/notebook190c40d32f",
@@ -48,9 +59,4 @@ jobs:
             "enable_internet": true
           }
           EOF
-
-      - name: Повторно отправить ноутбук на выполнение
-        env:
-          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
-        run: |
           kaggle kernels push -p kaggle-notebook
