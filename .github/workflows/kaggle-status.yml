@@ -14,41 +14,32 @@ jobs:
           python-version: "3.11"
       - name: Установка Kaggle CLI
         run: python -m pip install --upgrade kaggle six
-      - name: Проверить статус и получить журнал Kaggle
+      - name: Получить живой журнал Kaggle и ссылку Gradio
         env:
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: |
+          set -o pipefail
           if [ -z "$KAGGLE_API_TOKEN" ]; then
             echo "KAGGLE_API_TOKEN secret is missing."
             exit 1
           fi
           echo "=== KAGGLE STATUS ==="
           kaggle kernels status digitalstudio2026/notebook190c40d32f || true
-          echo "=== KAGGLE EXECUTION LOG ==="
-          kaggle kernels logs digitalstudio2026/notebook190c40d32f || true
+          echo "=== LIVE EXECUTION LOG (up to 150 seconds) ==="
+          timeout 150s kaggle kernels logs digitalstudio2026/notebook190c40d32f --follow --interval 5 2>&1 | tee /tmp/kaggle-live.log || true
+          echo "=== EXTRACT GRADIO URL ==="
+          grep -Eo 'https://[A-Za-z0-9-]+\.gradio\.live' /tmp/kaggle-live.log | tail -n 1 | tee /tmp/gradio-url.txt || true
+          if [ -s /tmp/gradio-url.txt ]; then
+            echo "GRADIO_SHARE_URL=$(cat /tmp/gradio-url.txt)" >> "$GITHUB_OUTPUT"
+            echo "PUBLIC_GRADIO_URL=$(cat /tmp/gradio-url.txt)"
+          else
+            echo "No Gradio share URL appeared in the live log during this check."
+            echo "=== LAST LOG LINES ==="
+            tail -n 80 /tmp/kaggle-live.log || true
+          fi
           echo "=== KAGGLE OUTPUT FILES ==="
           mkdir -p /tmp/kaggle-output
           kaggle kernels output digitalstudio2026/notebook190c40d32f -p /tmp/kaggle-output || true
           find /tmp/kaggle-output -maxdepth 2 -type f -printf '%p (%s bytes)\\n' || true
 
-# Status check refreshed on 2026-11-07.
-
-# Trigger status verification for the latest persistent Gradio session.
-
-# status check refresh 2026-11-07
-
-# quick backend smoke test 2026-11-07 09:00Z
-
-# status poll 2026-11-07Tcurrent
-
-# status poll requested by user 2026-11-07Tnow
-
-# status poll after repaired notebook upload 2026-11-07
-
-# status poll 2026-11-07Tlatest
-
-# status poll requested again 2026-11-07
-
-# refresh main notebook status 2026-11-07
-
-# inspect output files for user request 2026-11-07
+# Live log streaming enabled to capture demo.share_url from the running Kaggle session.
