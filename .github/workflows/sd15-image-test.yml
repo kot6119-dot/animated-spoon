@@ -1,0 +1,70 @@
+name: Run one-shot SD 1.5 image test
+
+on:
+  push:
+    paths:
+      - 'kaggle-image-test/**'
+
+jobs:
+  generate-one-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --upgrade six kaggle
+
+      - name: Submit finite image-generation notebook
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo "Missing KAGGLE_API_TOKEN"
+            exit 1
+          fi
+          kaggle kernels push -p kaggle-image-test --accelerator NvidiaTeslaT4 --timeout 1800
+
+      - name: Wait for Kaggle batch run to finish
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          completed=0
+          for i in $(seq 1 40); do
+            status="$(kaggle kernels status digitalstudio2026/sd15-image-test 2>&1 || true)"
+            echo "$status"
+            if echo "$status" | grep -q 'KernelWorkerStatus.COMPLETE'; then
+              completed=1
+              break
+            fi
+            if echo "$status" | grep -Eq 'KernelWorkerStatus.ERROR|KernelWorkerStatus.CANCEL'; then
+              exit 1
+            fi
+            sleep 30
+          done
+          if [ "$completed" -ne 1 ]; then
+            echo "Kaggle run did not reach COMPLETE within 20 minutes."
+            exit 1
+          fi
+
+      - name: Download generated PNG
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          mkdir -p output
+          kaggle kernels output digitalstudio2026/sd15-image-test -p output
+          test -s output/sd15-test.png
+
+      - name: Attach PNG to this run
+        uses: actions/upload-artifact@v4
+        with:
+          name: sd15-generated-image
+          path: output/sd15-test.png
+          if-no-files-found: error
+          retention-days: 7
