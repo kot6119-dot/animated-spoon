@@ -1,0 +1,33 @@
+name: Read-only Kaggle inventory
+
+on:
+  push:
+    paths:
+      - '.github/workflows/kaggle-inventory.yml'
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Kaggle CLI
+        run: python -m pip install --upgrade kaggle
+      - name: List my Kaggle notebooks and latest run statuses
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo "ERROR: KAGGLE_API_TOKEN secret is missing"
+            exit 1
+          fi
+          echo "=== MY NOTEBOOKS ==="
+          kaggle kernels list --mine --page-size 100
+          echo "=== LTX VIDEO STUDIO STATUS ==="
+          kaggle kernels status digitalstudio2026/ltx-video-studio || true
+          echo "=== LTX VIDEO 13B EXPERIMENT STATUS ==="
+          kaggle kernels status digitalstudio2026/ltx-video-13b-experiment || true
+          echo "=== HARDWARE CHECK STATUS ==="
+          kaggle kernels status digitalstudio2026/ltx-hardware-check || true
