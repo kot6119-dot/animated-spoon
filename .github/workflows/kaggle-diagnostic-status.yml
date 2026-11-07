@@ -18,3 +18,5 @@ jobs:
         run: |
           kaggle kernels status digitalstudio2026/ltx-hardware-check || true
           kaggle kernels logs digitalstudio2026/ltx-hardware-check || true
+
+# refresh diagnostic status 2026-11-07 after GPU run
