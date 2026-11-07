@@ -1,0 +1,1 @@
+This file triggers the dedicated one-shot SD 1.5 image test workflow. No Gradio server or keep-alive loop is used.
