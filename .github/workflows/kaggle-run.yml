@@ -32,14 +32,38 @@ jobs:
           fi
           echo "Секретный ключ найден."
 
-      - name: Проверить состояние ноутбука и список наших Kaggle kernels
+      - name: Диагностика состояния Kaggle без запуска и удаления ноутбука
         env:
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: |
-          echo "===== STATUS нашего ноутбука ====="
+          echo "===== СТАТУС ЦЕЛЕВОГО НОУТБУКА ====="
           kaggle kernels status digitalstudio2026/notebook190c40d32f || true
-          echo "===== НАШИ KERNELS ====="
+          echo "===== СПИСОК МОИХ KERNELS ====="
           kaggle kernels list --mine --page-size 100 --csv || true
+          echo "===== ПРОВЕРКА ДОСТУПНЫХ MCP-ОПЕРАЦИЙ ====="
+          python - <<'PY'
+          import json, os, urllib.request
+          req = urllib.request.Request(
+              "https://www.kaggle.com/mcp",
+              data=json.dumps({"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}).encode(),
+              headers={
+                  "Authorization": "Bearer " + os.environ["KAGGLE_API_TOKEN"],
+                  "Content-Type": "application/json",
+                  "Accept": "application/json, text/event-stream",
+                  "MCP-Protocol-Version": "2025-11-25"
+              },
+              method="POST"
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  body = response.read().decode("utf-8", "replace")
+              print("MCP response received.")
+              for line in body.splitlines():
+                  if "cancel_notebook_session" in line or "get_notebook_session_status" in line:
+                      print(line[:1200])
+          except Exception as e:
+              print("MCP diagnostic unavailable:", type(e).__name__, str(e)[:300])
+          PY
 
       - name: Отправить ноутбук на выполнение только при изменении самого ноутбука
         if: contains(github.event.head_commit.modified, 'kaggle-notebook/ltx-video.ipynb')
