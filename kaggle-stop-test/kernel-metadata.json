@@ -1,0 +1,10 @@
+{
+  "id": "digitalstudio2026/sd15-stop-button-test",
+  "title": "SD15 Stop Button Test",
+  "code_file": "sd15-stop-button-test.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": true,
+  "enable_internet": true
+}
