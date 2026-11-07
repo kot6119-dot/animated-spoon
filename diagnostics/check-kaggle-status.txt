@@ -1,2 +1,3 @@
 Read-only Kaggle status check trigger.
 Refresh: inspect active Kaggle execution logs.
+Status refresh at current check.
