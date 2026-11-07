@@ -4,3 +4,4 @@ Status refresh at current check.
 Verify current Gradio endpoint and Kaggle kernel state.
 Probe public Gradio URL from GitHub runner.
 Refresh requested after BasicSR compatibility publication.
+Check Kaggle status after notebook version 4 publish.
