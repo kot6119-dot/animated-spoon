@@ -5,3 +5,4 @@ Verify current Gradio endpoint and Kaggle kernel state.
 Probe public Gradio URL from GitHub runner.
 Refresh requested after BasicSR compatibility publication.
 Check Kaggle status after notebook version 4 publish.
+Refresh runtime logs and recover current Gradio share URL for the 3-second text-to-video test.
