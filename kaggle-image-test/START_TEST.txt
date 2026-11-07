@@ -1,1 +1,2 @@
 This file triggers the dedicated one-shot SD 1.5 image test workflow. No Gradio server or keep-alive loop is used.
+Run request: 2026-11-07 retry after Kaggle cleanup.
