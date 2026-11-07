@@ -17,7 +17,7 @@ jobs:
 
       - name: Установить клиент Gradio и Kaggle
         run: |
-          python -m pip install --upgrade kaggle gradio-client
+          python -m pip install --upgrade six kaggle gradio-client
 
       - name: Найти живой адрес нашего Kaggle Gradio
         id: gradio
@@ -44,7 +44,7 @@ jobs:
           GRADIO_URL: ${{ steps.gradio.outputs.url }}
         run: |
           cat > /tmp/submit_cat.py <<'PY'
-          import os, shutil, time
+          import os, shutil
           from pathlib import Path
           from gradio_client import Client
 
@@ -63,11 +63,7 @@ jobs:
 
           print("=== ENHANCE PROMPT ===", flush=True)
           enhanced = client.predict(
-              prompt,
-              "",
-              "5s (native)",
-              "480p",
-              "None (Base Model)",
+              prompt, "", "5s (native)", "480p", "None (Base Model)",
               api_name="/on_enhance",
           )
           positive, negative, stats = enhanced
@@ -76,15 +72,8 @@ jobs:
 
           print("=== GENERATE VIDEO ===", flush=True)
           result = client.predict(
-              positive,
-              negative,
-              "480p",
-              "16:9 Landscape",
-              "5s (native)",
-              -1,
-              None,
-              "None (Base Model)",
-              1.0,
+              positive, negative, "480p", "16:9 Landscape", "5s (native)",
+              -1, None, "None (Base Model)", 1.0,
               api_name="/on_gen",
           )
           video, info, log, stats = result
