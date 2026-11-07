@@ -28,3 +28,5 @@ jobs:
           kaggle kernels logs digitalstudio2026/notebook190c40d32f || true
 
 # Status check refreshed on 2026-11-07.
+
+# Trigger status verification for the latest persistent Gradio session.
