@@ -1,6 +1,6 @@
 {
   "id": "digitalstudio2026/sd15-image-test",
-  "title": "SD 1.5 One Image Test",
+  "title": "SD15 Image Test",
   "code_file": "sd15-image-test.ipynb",
   "language": "python",
   "kernel_type": "notebook",
