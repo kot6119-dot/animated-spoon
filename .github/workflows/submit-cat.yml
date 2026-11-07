@@ -1,0 +1,114 @@
+name: Запустить тестового кота в LTX
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/submit-cat.yml"
+
+jobs:
+  submit-cat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Подготовить Python и Kaggle CLI
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Установить клиент Gradio и Kaggle
+        run: |
+          python -m pip install --upgrade kaggle gradio-client
+
+      - name: Найти живой адрес нашего Kaggle Gradio
+        id: gradio
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          set -o pipefail
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo "KAGGLE_API_TOKEN secret is missing."
+            exit 1
+          fi
+          timeout 120s kaggle kernels logs digitalstudio2026/notebook190c40d32f --follow --interval 5 2>&1 | tee /tmp/kaggle-live.log || true
+          URL=$(grep -Eo 'https://[A-Za-z0-9-]+\.gradio\.live' /tmp/kaggle-live.log | tail -n 1)
+          if [ -z "$URL" ]; then
+            echo "Не удалось получить публичный Gradio URL из журнала Kaggle."
+            tail -n 100 /tmp/kaggle-live.log
+            exit 1
+          fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Найден интерфейс основного ноутбука: $URL"
+
+      - name: Отправить промпт кота и запустить генерацию
+        env:
+          GRADIO_URL: ${{ steps.gradio.outputs.url }}
+        run: |
+          cat > /tmp/submit_cat.py <<'PY'
+          import os, shutil, time
+          from pathlib import Path
+          from gradio_client import Client
+
+          url = os.environ["GRADIO_URL"]
+          prompt = (
+              "A fluffy ginger cat slowly walks across a wooden table. "
+              "The cat takes several natural steps, its tail gently swaying. "
+              "Static camera, cozy room, soft daylight, realistic movement, "
+              "smooth video, no scene changes."
+          )
+
+          print("Connecting to our LTX Gradio:", url, flush=True)
+          client = Client(url, verbose=True)
+          print("=== AVAILABLE API ===", flush=True)
+          client.view_api()
+
+          print("=== ENHANCE PROMPT ===", flush=True)
+          enhanced = client.predict(
+              prompt,
+              "",
+              "5s (native)",
+              "480p",
+              "None (Base Model)",
+              api_name="/on_enhance",
+          )
+          positive, negative, stats = enhanced
+          print("Enhanced prompt:", positive, flush=True)
+          print("GPU stats:", stats, flush=True)
+
+          print("=== GENERATE VIDEO ===", flush=True)
+          result = client.predict(
+              positive,
+              negative,
+              "480p",
+              "16:9 Landscape",
+              "5s (native)",
+              -1,
+              None,
+              "None (Base Model)",
+              1.0,
+              api_name="/on_gen",
+          )
+          video, info, log, stats = result
+          print("GENERATION INFO:", info, flush=True)
+          print("GENERATION LOG:", log, flush=True)
+          print("GPU STATS:", stats, flush=True)
+
+          if isinstance(video, dict):
+              video = video.get("video") or video.get("path")
+          if not video:
+              raise RuntimeError("Gradio returned no video file.")
+          src = Path(str(video))
+          if not src.is_file():
+              raise RuntimeError(f"Video file was not found on runner: {src}")
+          dst = Path("cat-output.mp4")
+          shutil.copy2(src, dst)
+          print(f"VIDEO_READY={dst.resolve()} SIZE={dst.stat().st_size}", flush=True)
+          PY
+          python /tmp/submit_cat.py
+
+      - name: Сохранить готовое видео как артефакт
+        uses: actions/upload-artifact@v4
+        with:
+          name: ltx-ginger-cat-video
+          path: cat-output.mp4
+          if-no-files-found: error
+          retention-days: 7
