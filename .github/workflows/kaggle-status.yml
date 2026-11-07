@@ -23,7 +23,6 @@ jobs:
             exit 1
           fi
           echo "=== KAGGLE STATUS ==="
-          echo "=== KAGGLE STATUS ==="
           kaggle kernels status digitalstudio2026/notebook190c40d32f || true
           echo "=== KAGGLE EXECUTION LOG ==="
           kaggle kernels logs digitalstudio2026/notebook190c40d32f || true
