@@ -26,6 +26,10 @@ jobs:
           kaggle kernels status digitalstudio2026/notebook190c40d32f || true
           echo "=== KAGGLE EXECUTION LOG ==="
           kaggle kernels logs digitalstudio2026/notebook190c40d32f || true
+          echo "=== KAGGLE OUTPUT FILES ==="
+          mkdir -p /tmp/kaggle-output
+          kaggle kernels output digitalstudio2026/notebook190c40d32f -p /tmp/kaggle-output || true
+          find /tmp/kaggle-output -maxdepth 2 -type f -printf '%p (%s bytes)\\n' || true
 
 # Status check refreshed on 2026-11-07.
 
@@ -46,3 +50,5 @@ jobs:
 # status poll requested again 2026-11-07
 
 # refresh main notebook status 2026-11-07
+
+# inspect output files for user request 2026-11-07
