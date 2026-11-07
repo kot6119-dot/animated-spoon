@@ -25,7 +25,7 @@ jobs:
           fi
           echo "=== MY KAGGLE KERNELS ==="
           kaggle kernels list --mine --page-size 50 || true
-          for KERNEL in digitalstudio2026/ltx-video-studio digitalstudio2026/ltx-video-13b-experiment; do
+          for KERNEL in digitalstudio2026/ltx-video-studio digitalstudio2026/ltx-hardware-check digitalstudio2026/ltx-video-13b-experiment; do
             echo "=== STATUS: $KERNEL ==="
             kaggle kernels status "$KERNEL" || true
             echo "=== LOGS: $KERNEL ==="
