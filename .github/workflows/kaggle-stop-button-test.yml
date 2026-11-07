@@ -1,0 +1,30 @@
+name: Publish Kaggle stop-button test
+
+on:
+  push:
+    paths:
+      - 'kaggle-stop-test/**'
+      - '.github/workflows/kaggle-stop-button-test.yml'
+
+jobs:
+  publish-notebook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Kaggle CLI
+        run: python -m pip install --upgrade six kaggle
+      - name: Push public interactive notebook
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo "Missing KAGGLE_API_TOKEN"
+            exit 1
+          fi
+          kaggle kernels push -p kaggle-stop-test
