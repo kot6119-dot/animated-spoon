@@ -52,3 +52,5 @@ jobs:
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: |
           kaggle kernels push -p kaggle-diagnostic
+
+# Trigger safe GPU hardware diagnostic requested 2026-11-07
