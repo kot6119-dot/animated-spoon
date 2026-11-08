@@ -8,3 +8,4 @@ ENV PORT=3000
 ENV DATA_DIR=/data
 EXPOSE 3000
 CMD ["npm","start"]
+# Playwright image and npm package versions must match.
