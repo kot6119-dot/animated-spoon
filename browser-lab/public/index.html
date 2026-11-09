@@ -24,6 +24,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#1e293b;padding:12px;
 <input id="token" type="password" autocomplete="off" placeholder="Ключ задаётся владельцем сервера">
 <label for="url">Адрес сайта</label>
 <input id="url" value="https://www.kaggle.com/" inputmode="url">
+<button id="kaggleLogin">Войти в Kaggle</button>
 <div class="row"><button id="open">Открыть сайт</button><button id="refresh">Обновить экран</button></div>
 <div id="state" role="status">Браузер ещё не запущен.</div>
 <img id="screen" alt="Снимок окна удалённого браузера">
@@ -43,6 +44,7 @@ async function call(url,options={}){const r=await fetch(url,{...options,headers:
 function say(s){state.textContent=s}
 async function refresh(){try{const r=await fetch("/api/screenshot",{headers:headers()});if(!r.ok){const j=await r.json();throw Error(j.error||"Ошибка "+r.status)}$("screen").src=URL.createObjectURL(await r.blob());const s=await call("/api/status");say("Открыто: "+s.title+" · "+s.url)}catch(e){say(e.message)}}
 $("open").onclick=async()=>{try{const r=await call("/api/open",{method:"POST",body:JSON.stringify({url:$("url").value})});say("Открыта страница: "+r.title);await refresh()}catch(e){say(e.message)}};
+$("kaggleLogin").onclick=async()=>{const loginUrl="https://www.kaggle.com/account/login";$("url").value=loginUrl;try{const r=await call("/api/open",{method:"POST",body:JSON.stringify({url:loginUrl})});say("Открыта страница входа Kaggle: "+r.title);await refresh()}catch(e){say("Не удалось открыть вход Kaggle: "+e.message)}};
 $("refresh").onclick=refresh;
 $("screen").onclick=async e=>{const r=$("screen").getBoundingClientRect();const x=(e.clientX-r.left)/r.width*1280;const y=(e.clientY-r.top)/r.height*800;try{await call("/api/click",{method:"POST",body:JSON.stringify({x,y})});await new Promise(r=>setTimeout(r,500));await refresh()}catch(err){say(err.message)}};
 $("type").onclick=async()=>{try{await call("/api/type",{method:"POST",body:JSON.stringify({text:$("typing").value})});await refresh()}catch(e){say(e.message)}};
