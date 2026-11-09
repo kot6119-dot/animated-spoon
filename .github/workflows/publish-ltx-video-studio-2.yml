@@ -2,6 +2,10 @@ name: Publish new LTX-Video notebook to Kaggle
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'kaggle-notebook/ltx-video-studio-2/**'
+      - '.github/workflows/publish-ltx-video-studio-2.yml'
 
 jobs:
   publish:
