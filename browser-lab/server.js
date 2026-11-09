@@ -68,6 +68,70 @@ app.post("/api/open", authorized, async (req, res) => {
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
+// Credentials are used only for the live Kaggle form. They are never logged or written to disk.
+app.post("/api/login", authorized, async (req, res) => {
+  try {
+    await ensureBrowser();
+    const login = String(req.body.login || "").trim();
+    const password = String(req.body.password || "");
+    if (!login || !password) return res.status(400).json({ error: "Введи логин и пароль Kaggle." });
+    if (login.length > 320 || password.length > 1024) {
+      return res.status(400).json({ error: "Проверь длину введённых данных." });
+    }
+
+    const host = new URL(page.url()).hostname.toLowerCase();
+    if (!host.endsWith("kaggle.com") || !page.url().includes("/account/login")) {
+      await page.goto("https://www.kaggle.com/account/login", { waitUntil: "domcontentloaded", timeout: 60000 });
+    }
+
+    const passwordField = page.locator('input[type="password"]').first();
+    await passwordField.waitFor({ state: "visible", timeout: 15000 });
+
+    const loginSelectors = [
+      'input[autocomplete="username"]',
+      'input[type="email"]',
+      'input[name="username"]',
+      'input[name="email"]',
+      'input[type="text"]'
+    ];
+    let loginField = null;
+    for (const selector of loginSelectors) {
+      const candidate = page.locator(selector).first();
+      if (await candidate.isVisible().catch(() => false) && await candidate.isEnabled().catch(() => false)) {
+        loginField = candidate;
+        break;
+      }
+    }
+    if (!loginField) return res.status(400).json({ error: "Не нашла поле логина на странице Kaggle." });
+
+    await loginField.fill(login);
+    await passwordField.fill(password);
+
+    const submitSelectors = [
+      'button[type="submit"]',
+      'input[type="submit"]',
+      'button:has-text("Sign in")',
+      'button:has-text("Log in")',
+      'button:has-text("Войти")'
+    ];
+    let submitted = false;
+    for (const selector of submitSelectors) {
+      const candidate = page.locator(selector).first();
+      if (await candidate.isVisible().catch(() => false) && await candidate.isEnabled().catch(() => false)) {
+        await candidate.click();
+        submitted = true;
+        break;
+      }
+    }
+    if (!submitted) await passwordField.press("Enter");
+
+    await page.waitForTimeout(1200);
+    res.json({ ok: true, message: "Форма Kaggle отправлена. Обнови экран и проверь результат." });
+  } catch (e) {
+    res.status(500).json({ error: "Не удалось выполнить вход в Kaggle: " + e.message });
+  }
+});
+
 app.post("/api/click", authorized, async (req, res) => {
   try {
     await ensureBrowser();
