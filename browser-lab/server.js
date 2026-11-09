@@ -84,9 +84,6 @@ app.post("/api/login", authorized, async (req, res) => {
       await page.goto("https://www.kaggle.com/account/login", { waitUntil: "domcontentloaded", timeout: 60000 });
     }
 
-    const passwordField = page.locator('input[type="password"]').first();
-    await passwordField.waitFor({ state: "visible", timeout: 15000 });
-
     const loginSelectors = [
       'input[autocomplete="username"]',
       'input[type="email"]',
@@ -102,9 +99,35 @@ app.post("/api/login", authorized, async (req, res) => {
         break;
       }
     }
-    if (!loginField) return res.status(400).json({ error: "Не нашла поле логина на странице Kaggle." });
+    if (!loginField) {
+      return res.status(400).json({ error: "Kaggle не показал поле логина. Возможно, страница предлагает вход через Google или дополнительную проверку. Посмотри экран браузера." });
+    }
 
     await loginField.fill(login);
+
+    let passwordField = page.locator('input[type="password"]').first();
+    if (!(await passwordField.isVisible().catch(() => false))) {
+      const continueSelectors = [
+        'button[type="submit"]',
+        'button:has-text("Continue")',
+        'button:has-text("Next")',
+        'button:has-text("Продолжить")',
+        'button:has-text("Далее")'
+      ];
+      let continued = false;
+      for (const selector of continueSelectors) {
+        const candidate = page.locator(selector).first();
+        if (await candidate.isVisible().catch(() => false) && await candidate.isEnabled().catch(() => false)) {
+          await candidate.click();
+          continued = true;
+          break;
+        }
+      }
+      if (!continued) await loginField.press("Enter");
+      passwordField = page.locator('input[type="password"]').first();
+    }
+
+    await passwordField.waitFor({ state: "visible", timeout: 20000 });
     await passwordField.fill(password);
 
     const submitSelectors = [
