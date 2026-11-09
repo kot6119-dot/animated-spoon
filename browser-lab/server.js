@@ -23,7 +23,7 @@ let context;
 let page;
 
 function authorized(req, res, next) {
-  const token = req.get("authorization")?.replace(/^Bearer\s+/i, "");
+  const token = req.get("authorization")?.replace(/^Bearer\\s+/i, "");
   if (token !== CONTROL_TOKEN) return res.status(401).json({ error: "Неверный ключ доступа." });
   next();
 }
@@ -66,6 +66,52 @@ app.post("/api/open", authorized, async (req, res) => {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
     res.json({ ok: true, url: page.url(), title: await page.title() });
   } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// Credentials are used only to fill the live page. They are not logged or saved by this service.
+app.post("/api/login", authorized, async (req, res) => {
+  try {
+    await ensureBrowser();
+    const login = String(req.body.login || "").trim();
+    const password = String(req.body.password || "");
+    if (!login && !password) return res.status(400).json({ error: "Введи логин или пароль." });
+    if (login.length > 320 || password.length > 1024) {
+      return res.status(400).json({ error: "Проверь длину введённых данных." });
+    }
+
+    const visible = async locator => {
+      const count = await locator.count();
+      for (let i = 0; i < count; i++) {
+        const item = locator.nth(i);
+        if (await item.isVisible().catch(() => false) && await item.isEnabled().catch(() => false)) return item;
+      }
+      return null;
+    };
+
+    const passwordField = await visible(page.locator('input[type="password"]'));
+    const emailField = await visible(page.locator('input[type="email"], input[autocomplete="username"], input[type="text"]'));
+
+    if (passwordField) {
+      if (emailField && login) await emailField.fill(login);
+      if (password) await passwordField.fill(password);
+      const submit = await visible(page.locator('button[type="submit"], input[type="submit"], button').filter({ hasText: /sign in|log in|continue|next|войти|далее/i }));
+      if (submit) await submit.click();
+      else await passwordField.press("Enter");
+      return res.json({ ok: true, step: "submitted", message: "Данные отправлены форме входа. Проверяю страницу." });
+    }
+
+    if (emailField && login) {
+      await emailField.fill(login);
+      const next = await visible(page.locator('button[type="submit"], input[type="submit"], button').filter({ hasText: /continue|next|далее|продолжить/i }));
+      if (next) await next.click();
+      else await emailField.press("Enter");
+      return res.json({ ok: true, step: "login", message: "Логин введён. Если сайт запросит пароль, нажми «Войти» ещё раз." });
+    }
+
+    return res.status(400).json({ error: "Не нашла поле логина или пароля на этой странице. Сначала открой страницу входа Kaggle." });
+  } catch (e) {
+    res.status(500).json({ error: "Не удалось заполнить форму: " + e.message });
+  }
 });
 
 app.post("/api/click", authorized, async (req, res) => {
