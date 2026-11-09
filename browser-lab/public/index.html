@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Браузер для Kaggle</title>
+<title>Браузер Kaggle</title>
 <style>
 :root{color-scheme:dark;font:17px -apple-system,BlinkMacSystemFont,sans-serif}
 body{margin:0;background:#101827;color:#eef2f7;padding:18px}
@@ -15,20 +15,29 @@ button{background:#d7e8ff;color:#102033;font-weight:700}
 #state{padding:10px 0;line-height:1.5}
 small{color:#bac7d8}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#1e293b;padding:12px;border-radius:8px;max-height:260px;overflow:auto}
+.panel{border:1px solid #64748b;border-radius:12px;padding:12px;margin:12px 0}
+h2{font-size:19px;margin:4px 0 8px}
 </style>
 </head>
 <body><main>
 <h1>Браузер Kaggle</h1>
-<p>Пробный удалённый браузер. Сначала введи секретный ключ доступа, затем открой Kaggle и войди в аккаунт прямо в окне ниже.</p>
-<label for="token">Ключ доступа</label>
-<input id="token" type="password" autocomplete="off" placeholder="Ключ задаётся владельцем сервера">
+<p>Одна панель для перехода на Kaggle и входа в аккаунт.</p>
+<section class="panel" aria-label="Вход в Kaggle">
+<label for="token">Ключ доступа к нашему браузеру</label>
+<input id="token" type="password" autocomplete="off" placeholder="Ключ доступа">
+<button id="kaggleLogin">1. Перейти на Kaggle</button>
+<label for="login">Логин или электронная почта Kaggle</label>
+<input id="login" type="text" autocomplete="username" placeholder="Логин или почта">
+<label for="password">Пароль Kaggle</label>
+<input id="password" type="password" autocomplete="current-password" placeholder="Пароль">
+<button id="signIn">2. Войти в Kaggle</button>
+<div id="state" role="status" aria-live="polite">Сначала введи ключ доступа и нажми «Перейти на Kaggle».</div>
+</section>
+<div class="row"><button id="open">Открыть адрес</button><button id="refresh">Обновить экран</button></div>
 <label for="url">Адрес сайта</label>
 <input id="url" value="https://www.kaggle.com/" inputmode="url">
-<button id="kaggleLogin">Войти в Kaggle</button>
-<div class="row"><button id="open">Открыть сайт</button><button id="refresh">Обновить экран</button></div>
-<div id="state" role="status">Браузер ещё не запущен.</div>
 <img id="screen" alt="Снимок окна удалённого браузера">
-<p><small>Нажимай по изображению, чтобы кликнуть в соответствующем месте браузера.</small></p>
+<p><small>Дополнительное управление браузером.</small></p>
 <label for="typing">Текст для ввода в выбранное поле</label>
 <input id="typing" placeholder="Текст для ввода">
 <div class="row"><button id="type">Ввести текст</button><button id="enter">Нажать Enter</button></div>
@@ -43,8 +52,9 @@ function headers(){return {Authorization:"Bearer "+$("token").value,"Content-Typ
 async function call(url,options={}){const r=await fetch(url,{...options,headers:headers()});const j=options.raw?null:await r.json();if(!r.ok)throw Error(j?.error||"Ошибка "+r.status);return j}
 function say(s){state.textContent=s}
 async function refresh(){try{const r=await fetch("/api/screenshot",{headers:headers()});if(!r.ok){const j=await r.json();throw Error(j.error||"Ошибка "+r.status)}$("screen").src=URL.createObjectURL(await r.blob());const s=await call("/api/status");say("Открыто: "+s.title+" · "+s.url)}catch(e){say(e.message)}}
+$("kaggleLogin").onclick=async()=>{const loginUrl="https://www.kaggle.com/account/login";$("url").value=loginUrl;try{const r=await call("/api/open",{method:"POST",body:JSON.stringify({url:loginUrl})});say("Страница Kaggle открыта: "+r.title);await refresh()}catch(e){say("Не удалось открыть Kaggle: "+e.message)}};
+$("signIn").onclick=async()=>{try{const r=await call("/api/login",{method:"POST",body:JSON.stringify({login:$("login").value,password:$("password").value})});say(r.message);await new Promise(resolve=>setTimeout(resolve,1200));await refresh()}catch(e){say(e.message)}};
 $("open").onclick=async()=>{try{const r=await call("/api/open",{method:"POST",body:JSON.stringify({url:$("url").value})});say("Открыта страница: "+r.title);await refresh()}catch(e){say(e.message)}};
-$("kaggleLogin").onclick=async()=>{const loginUrl="https://www.kaggle.com/account/login";$("url").value=loginUrl;try{const r=await call("/api/open",{method:"POST",body:JSON.stringify({url:loginUrl})});say("Открыта страница входа Kaggle: "+r.title);await refresh()}catch(e){say("Не удалось открыть вход Kaggle: "+e.message)}};
 $("refresh").onclick=refresh;
 $("screen").onclick=async e=>{const r=$("screen").getBoundingClientRect();const x=(e.clientX-r.left)/r.width*1280;const y=(e.clientY-r.top)/r.height*800;try{await call("/api/click",{method:"POST",body:JSON.stringify({x,y})});await new Promise(r=>setTimeout(r,500));await refresh()}catch(err){say(err.message)}};
 $("type").onclick=async()=>{try{await call("/api/type",{method:"POST",body:JSON.stringify({text:$("typing").value})});await refresh()}catch(e){say(e.message)}};
