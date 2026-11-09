@@ -23,7 +23,7 @@ let context;
 let page;
 
 function authorized(req, res, next) {
-  const token = req.get("authorization")?.replace(/^Bearer\\s+/i, "");
+  const token = req.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (token !== CONTROL_TOKEN) return res.status(401).json({ error: "Неверный ключ доступа." });
   next();
 }
