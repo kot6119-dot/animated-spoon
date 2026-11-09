@@ -80,8 +80,26 @@ app.post("/api/login", authorized, async (req, res) => {
     }
 
     const host = new URL(page.url()).hostname.toLowerCase();
-    if (!host.endsWith("kaggle.com") || !page.url().includes("/account/login")) {
-      await page.goto("https://www.kaggle.com/account/login", { waitUntil: "domcontentloaded", timeout: 60000 });
+    if (!host.endsWith("kaggle.com")) {
+      await page.goto("https://www.kaggle.com/", { waitUntil: "domcontentloaded", timeout: 60000 });
+    }
+
+    // Kaggle first shows its homepage. Open Login, then choose email instead of Google.
+    const loginEntrySelectors = [
+      'a:has-text("Login")',
+      'button:has-text("Login")',
+      'a:has-text("Sign in")',
+      'button:has-text("Sign in")'
+    ];
+    let loginEntryClicked = false;
+    for (const selector of loginEntrySelectors) {
+      const candidate = page.locator(selector).first();
+      if (await candidate.isVisible().catch(() => false) && await candidate.isEnabled().catch(() => false)) {
+        await candidate.click();
+        loginEntryClicked = true;
+        await page.waitForTimeout(900);
+        break;
+      }
     }
 
     const loginSelectors = [
@@ -91,18 +109,44 @@ app.post("/api/login", authorized, async (req, res) => {
       'input[name="email"]',
       'input[type="text"]'
     ];
-    let loginField = null;
-    for (const selector of loginSelectors) {
-      const candidate = page.locator(selector).first();
-      if (await candidate.isVisible().catch(() => false) && await candidate.isEnabled().catch(() => false)) {
-        loginField = candidate;
-        break;
+    const findLoginField = async () => {
+      for (const selector of loginSelectors) {
+        const candidate = page.locator(selector).first();
+        if (await candidate.isVisible().catch(() => false) && await candidate.isEnabled().catch(() => false)) return candidate;
       }
-    }
+      return null;
+    };
+    let loginField = await findLoginField();
+
     if (!loginField) {
-      return res.status(400).json({ error: "Kaggle не показал поле логина. Возможно, страница предлагает вход через Google или дополнительную проверку. Посмотри экран браузера." });
+      const emailEntrySelectors = [
+        'button:has-text("Continue with email")',
+        'a:has-text("Continue with email")',
+        'button:has-text("Sign in with email")',
+        'a:has-text("Sign in with email")',
+        'button:has-text("Email")',
+        'a:has-text("Email")',
+        'text=/sign in with email/i',
+        'text=/continue with email/i',
+        'text=/use email/i'
+      ];
+      for (const selector of emailEntrySelectors) {
+        const candidate = page.locator(selector).first();
+        if (await candidate.isVisible().catch(() => false) && await candidate.isEnabled().catch(() => false)) {
+          await candidate.click();
+          await page.waitForTimeout(700);
+          break;
+        }
+      }
+      loginField = await findLoginField();
     }
 
+    if (!loginField) {
+      const visibleText = (await page.locator("body").innerText().catch(() => "")).slice(0, 1800);
+      return res.status(400).json({
+        error: "Не удалось открыть форму входа по электронной почте. На экране Kaggle сейчас: " + visibleText
+      });
+    }
     await loginField.fill(login);
 
     let passwordField = page.locator('input[type="password"]').first();
