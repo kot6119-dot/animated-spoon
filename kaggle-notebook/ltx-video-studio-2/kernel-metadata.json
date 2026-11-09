@@ -1,0 +1,10 @@
+{
+  "id": "digitalstudio2026/ltx-video-studio-2",
+  "title": "LTX-Video Studio 2",
+  "code_file": "ltx-video-studio-2.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": true,
+  "enable_internet": true
+}
