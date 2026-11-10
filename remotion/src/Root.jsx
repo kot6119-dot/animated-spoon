@@ -105,7 +105,7 @@ const WaterHidesDiamonds = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: "#03070d" }}>
       <Img
-        src={staticFile("images/27CDC63C-0B06-4B51-AE8A-520608040339.png")}
+        src={staticFile("images/diamonds-for-remotion.png")}
         style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
       <AbsoluteFill
@@ -116,7 +116,7 @@ const WaterHidesDiamonds = () => {
         }}
       >
         <Img
-          src={staticFile("images/27CDC63C-0B06-4B51-AE8A-520608040339.png")}
+          src={staticFile("images/diamonds-for-remotion.png")}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       </AbsoluteFill>
