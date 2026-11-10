@@ -36,17 +36,17 @@ const BottleScan = () => {
           </filter>
         </defs>
         <line
-          x1="790" y1={y} x2="1130" y2={y}
+          x1="680" y1={y} x2="970" y2={y}
           stroke="#43d9ff" strokeWidth="22" opacity={0.34 * pulse}
           filter="url(#laserGlow)" strokeLinecap="round"
         />
         <line
-          x1="790" y1={y} x2="1130" y2={y}
+          x1="680" y1={y} x2="970" y2={y}
           stroke="url(#laserFade)" strokeWidth="4" opacity={pulse}
           strokeLinecap="round"
         />
         <line
-          x1="825" y1={y - 1} x2="1095" y2={y - 1}
+          x1="710" y1={y - 1} x2="940" y2={y - 1}
           stroke="#ffffff" strokeWidth="1.5" opacity="0.95"
           strokeLinecap="round"
         />
