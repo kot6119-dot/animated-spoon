@@ -7,7 +7,7 @@ import {
   staticFile,
 } from "remotion";
 
-const BottleFilm: React.FC = () => (
+const BottleFilm = () => (
   <AbsoluteFill style={{ backgroundColor: "#080808" }}>
     <Sequence from={0} durationInFrames={150}>
       <OffthreadVideo
@@ -24,7 +24,7 @@ const BottleFilm: React.FC = () => (
   </AbsoluteFill>
 );
 
-export const RemotionRoot: React.FC = () => (
+export const RemotionRoot = () => (
   <Composition
     id="BottleFilm"
     component={BottleFilm}
