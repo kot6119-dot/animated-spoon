@@ -1,0 +1,16 @@
+{
+  "name": "animated-spoon-remotion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone Remotion video workspace",
+  "scripts": {
+    "studio": "remotion studio src/index.jsx",
+    "render": "remotion render src/index.jsx Main out/video.mp4 --codec=h264"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.409",
+    "remotion": "4.0.409",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
