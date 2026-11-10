@@ -101,6 +101,8 @@ const WaterHidesDiamonds = () => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+  const shimmer = 0.45 + 0.25 * Math.sin(frame * 0.11);
+  const causticShift = (frame * 2.2) % 420;
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#03070d" }}>
@@ -136,6 +138,14 @@ const WaterHidesDiamonds = () => {
           <filter id="waterGlow" x="-30%" y="-100%" width="160%" height="300%">
             <feGaussianBlur stdDeviation="15" />
           </filter>
+          <linearGradient id="causticLight" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
+            <stop offset="48%" stopColor="#c9f5ff" stopOpacity="0.42" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+          </linearGradient>
+          <filter id="softCaustic" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="9" />
+          </filter>
           <clipPath id="waterClip">
             <rect x="0" y={waterY} width="1920" height={1080 - waterY} />
           </clipPath>
@@ -143,15 +153,28 @@ const WaterHidesDiamonds = () => {
         <g clipPath="url(#waterClip)" opacity={waterOpacity}>
           <rect x="0" y={waterY} width="1920" height={1080 - waterY} fill="url(#waterBody)" />
           <path d={`M0 ${waterY + 42} Q320 ${waterY + 12} 640 ${waterY + 42} T1280 ${waterY + 42} T1920 ${waterY + 42}`} fill="none" stroke="#d7f7ff" strokeWidth="3" opacity="0.22" />
+          <g filter="url(#softCaustic)" opacity={shimmer}>
+            <path d={`M${causticShift - 500} ${waterY + 130} Q${causticShift - 260} ${waterY + 80} ${causticShift} ${waterY + 180} T${causticShift + 520} ${waterY + 140}`} fill="none" stroke="url(#causticLight)" strokeWidth="34" />
+            <path d={`M${causticShift - 300} ${waterY + 330} Q${causticShift - 40} ${waterY + 260} ${causticShift + 220} ${waterY + 360} T${causticShift + 740} ${waterY + 310}`} fill="none" stroke="url(#causticLight)" strokeWidth="24" />
+          </g>
         </g>
         <path
           d={`M0 ${waterY + wave} C280 ${waterY - 15 + wave}, 470 ${waterY + 17 + wave}, 720 ${waterY + wave} S1190 ${waterY - 17 + wave}, 1450 ${waterY + wave} S1740 ${waterY - 11 + wave}, 1920 ${waterY + wave}`}
           fill="none" stroke="#a9eaff" strokeWidth="24" opacity={0.2 + waterOpacity * 0.34} filter="url(#waterGlow)"
         />
         <path
+          d={`M0 ${waterY + wave + 13} C280 ${waterY - 2 + wave}, 470 ${waterY + 30 + wave}, 720 ${waterY + wave + 13} S1190 ${waterY - 4 + wave}, 1450 ${waterY + wave + 13} S1740 ${waterY + 2 + wave}, 1920 ${waterY + wave + 13}`}
+          fill="none" stroke="#8bdfff" strokeWidth="3" opacity="0.28"
+        />
+        <path
           d={`M0 ${waterY + wave} C280 ${waterY - 15 + wave}, 470 ${waterY + 17 + wave}, 720 ${waterY + wave} S1190 ${waterY - 17 + wave}, 1450 ${waterY + wave} S1740 ${waterY - 11 + wave}, 1920 ${waterY + wave}`}
           fill="none" stroke="url(#surfaceLine)" strokeWidth="5" opacity="0.96"
         />
+        <g opacity={0.22 + shimmer * 0.28}>
+          <path d={`M${180 + causticShift * 0.35} ${waterY + 18 + wave} l72 -5`} stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+          <path d={`M${960 - causticShift * 0.22} ${waterY + 23 + wave} l118 -7`} stroke="#e7fbff" strokeWidth="2" strokeLinecap="round" />
+          <path d={`M${1510 + causticShift * 0.18} ${waterY + 15 + wave} l64 -4`} stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
+        </g>
       </svg>
     </AbsoluteFill>
   );
