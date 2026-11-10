@@ -3,6 +3,7 @@ import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
 import multer from "multer";
+import { spawn } from "node:child_process";
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -63,6 +64,57 @@ function allowedUrl(raw) {
   }
   return u.toString();
 }
+
+
+let remotionRender = { status: "idle", log: "", startedAt: null, finishedAt: null };
+
+app.get("/remotion-video/:name", (req, res) => {
+  const allowedNames = ["bottle-intro.mp4", "diamonds-spill.mp4"];
+  if (req.query.token !== CONTROL_TOKEN || !allowedNames.includes(req.params.name)) {
+    return res.status(404).end();
+  }
+  res.sendFile(path.join(VIDEO_DIR, req.params.name));
+});
+
+app.post("/api/remotion/render", authorized, (_req, res) => {
+  if (remotionRender.status === "running") {
+    return res.status(409).json({ error: "Рендер уже выполняется." });
+  }
+  for (const name of ["bottle-intro.mp4", "diamonds-spill.mp4"]) {
+    if (!fs.existsSync(path.join(VIDEO_DIR, name))) {
+      return res.status(400).json({ error: "Сначала загрузите оба видеофрагмента." });
+    }
+  }
+  remotionRender = { status: "running", log: "", startedAt: new Date().toISOString(), finishedAt: null };
+  const child = spawn(process.execPath, [path.join(process.cwd(), "remotion", "render.mjs")], {
+    env: process.env,
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  const append = (chunk) => {
+    remotionRender.log = (remotionRender.log + chunk.toString()).slice(-12000);
+  };
+  child.stdout.on("data", append);
+  child.stderr.on("data", append);
+  child.on("error", (error) => {
+    remotionRender.status = "failed";
+    append(error.message);
+    remotionRender.finishedAt = new Date().toISOString();
+  });
+  child.on("close", (code) => {
+    remotionRender.status = code === 0 ? "completed" : "failed";
+    remotionRender.finishedAt = new Date().toISOString();
+  });
+  res.status(202).json({ ok: true, status: "running", message: "Сборка видео запущена." });
+});
+
+app.get("/api/remotion/render/status", authorized, (_req, res) => {
+  const output = path.join(DATA_DIR, "remotion", "output", "bottle-diamond-case.mp4");
+  res.json({
+    ...remotionRender,
+    outputReady: fs.existsSync(output),
+    outputFile: fs.existsSync(output) ? "bottle-diamond-case.mp4" : null
+  });
+});
 
 app.get("/health", (_req, res) => res.json({ ok: true, service: "browser-lab" }));
 
