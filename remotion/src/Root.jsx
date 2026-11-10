@@ -81,28 +81,24 @@ const DiamondsPolish = () => (
   </AbsoluteFill>
 );
 
-// Third scene: the uploaded diamond photograph with a rising animated water layer.
+// Third scene: clear rising water, diamonds fading with depth, and restrained reflected light.
 const WaterHidesDiamonds = () => {
   const frame = useCurrentFrame();
   const waterY = interpolate(frame, [0, 35, 150, 240, 300], [930, 900, 650, 390, 300], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const wave = Math.sin(frame * 0.075) * 8 + Math.sin(frame * 0.031) * 5;
-  const waterOpacity = interpolate(frame, [0, 25, 90, 300], [0.02, 0.12, 0.34, 0.58], {
+  const wave = Math.sin(frame * 0.075) * 6 + Math.sin(frame * 0.031) * 4;
+  const immersion = interpolate(frame, [0, 45, 150, 240, 300], [0, 0.18, 0.48, 0.78, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const underwaterBlur = interpolate(frame, [0, 120, 260, 300], [0, 0.4, 2.2, 2.8], {
+  const underwaterBlur = interpolate(frame, [0, 100, 220, 300], [0, 0.25, 1.1, 1.6], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const underwaterBrightness = interpolate(frame, [0, 120, 300], [1, 0.92, 0.78], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const shimmer = 0.45 + 0.25 * Math.sin(frame * 0.11);
-  const causticShift = (frame * 2.2) % 420;
+  const reflectionPulse = 0.72 + 0.18 * Math.sin(frame * 0.13);
+  const reflectionDrift = (frame * 3.1) % 620;
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#03070d" }}>
@@ -113,67 +109,69 @@ const WaterHidesDiamonds = () => {
       <AbsoluteFill
         style={{
           clipPath: `inset(${waterY}px 0 0 0)`,
-          filter: `blur(${underwaterBlur}px) brightness(${underwaterBrightness}) saturate(0.82)`,
-          transform: "scale(1.006)",
+          filter: `blur(${underwaterBlur}px) saturate(0.72)`,
         }}
       >
         <Img
           src={staticFile("images/diamonds-for-remotion.png")}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.9) contrast(0.88)" }}
         />
+        <svg viewBox="0 0 1920 1080" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+          <defs>
+            <linearGradient id="depthFade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#07131d" stopOpacity={0.12 + immersion * 0.12} />
+              <stop offset="28%" stopColor="#07131d" stopOpacity={0.22 + immersion * 0.22} />
+              <stop offset="65%" stopColor="#030910" stopOpacity={0.42 + immersion * 0.32} />
+              <stop offset="100%" stopColor="#02060b" stopOpacity={0.58 + immersion * 0.34} />
+            </linearGradient>
+            <linearGradient id="clearWaterTint" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#b9efff" stopOpacity="0.055" />
+              <stop offset="100%" stopColor="#3b8eb5" stopOpacity="0.035" />
+            </linearGradient>
+          </defs>
+          <rect x="0" y={waterY} width="1920" height={1080 - waterY} fill="url(#depthFade)" />
+          <rect x="0" y={waterY} width="1920" height={1080 - waterY} fill="url(#clearWaterTint)" />
+        </svg>
       </AbsoluteFill>
       <svg viewBox="0 0 1920 1080" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
         <defs>
-          <linearGradient id="waterBody" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#b9efff" stopOpacity="0.34" />
-            <stop offset="22%" stopColor="#3e9bc4" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#061c30" stopOpacity="0.7" />
-          </linearGradient>
           <linearGradient id="surfaceLine" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#c9f5ff" stopOpacity="0" />
-            <stop offset="22%" stopColor="#e9fcff" stopOpacity="0.95" />
-            <stop offset="76%" stopColor="#8bdfff" stopOpacity="0.82" />
-            <stop offset="100%" stopColor="#b8f1ff" stopOpacity="0" />
+            <stop offset="0%" stopColor="#e9fbff" stopOpacity="0" />
+            <stop offset="18%" stopColor="#ffffff" stopOpacity="0.78" />
+            <stop offset="52%" stopColor="#c9f4ff" stopOpacity="0.92" />
+            <stop offset="84%" stopColor="#ffffff" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#d8f7ff" stopOpacity="0" />
           </linearGradient>
-          <filter id="waterGlow" x="-30%" y="-100%" width="160%" height="300%">
-            <feGaussianBlur stdDeviation="15" />
+          <filter id="surfaceGlow" x="-30%" y="-180%" width="160%" height="460%">
+            <feGaussianBlur stdDeviation="8" />
           </filter>
-          <linearGradient id="causticLight" x1="0" y1="0" x2="1" y2="1">
+          <filter id="diamondReflectionBlur" x="-50%" y="-250%" width="200%" height="600%">
+            <feGaussianBlur stdDeviation="13" />
+          </filter>
+          <linearGradient id="diamondReflection" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
-            <stop offset="48%" stopColor="#c9f5ff" stopOpacity="0.42" />
+            <stop offset="45%" stopColor="#f4fdff" stopOpacity="0.9" />
+            <stop offset="56%" stopColor="#bdefff" stopOpacity="0.82" />
             <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
           </linearGradient>
-          <filter id="softCaustic" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="9" />
-          </filter>
-          <clipPath id="waterClip">
-            <rect x="0" y={waterY} width="1920" height={1080 - waterY} />
-          </clipPath>
         </defs>
-        <g clipPath="url(#waterClip)" opacity={waterOpacity}>
-          <rect x="0" y={waterY} width="1920" height={1080 - waterY} fill="url(#waterBody)" />
-          <path d={`M0 ${waterY + 42} Q320 ${waterY + 12} 640 ${waterY + 42} T1280 ${waterY + 42} T1920 ${waterY + 42}`} fill="none" stroke="#d7f7ff" strokeWidth="3" opacity="0.22" />
-          <g filter="url(#softCaustic)" opacity={shimmer}>
-            <path d={`M${causticShift - 500} ${waterY + 130} Q${causticShift - 260} ${waterY + 80} ${causticShift} ${waterY + 180} T${causticShift + 520} ${waterY + 140}`} fill="none" stroke="url(#causticLight)" strokeWidth="34" />
-            <path d={`M${causticShift - 300} ${waterY + 330} Q${causticShift - 40} ${waterY + 260} ${causticShift + 220} ${waterY + 360} T${causticShift + 740} ${waterY + 310}`} fill="none" stroke="url(#causticLight)" strokeWidth="24" />
-          </g>
+        <path
+          d={`M0 ${waterY + wave} C280 ${waterY - 12 + wave}, 470 ${waterY + 15 + wave}, 720 ${waterY + wave} S1190 ${waterY - 13 + wave}, 1450 ${waterY + wave} S1740 ${waterY - 8 + wave}, 1920 ${waterY + wave}`}
+          fill="none" stroke="#c9f4ff" strokeWidth="22" opacity="0.16" filter="url(#surfaceGlow)"
+        />
+        <path
+          d={`M0 ${waterY + wave} C280 ${waterY - 12 + wave}, 470 ${waterY + 15 + wave}, 720 ${waterY + wave} S1190 ${waterY - 13 + wave}, 1450 ${waterY + wave} S1740 ${waterY - 8 + wave}, 1920 ${waterY + wave}`}
+          fill="none" stroke="url(#surfaceLine)" strokeWidth="3.5" opacity="0.9"
+        />
+        <g opacity={immersion * reflectionPulse}>
+          <path d={`M${160 + reflectionDrift * 0.22} ${waterY + wave - 5} q70 -9 145 1`} stroke="url(#diamondReflection)" strokeWidth="5" fill="none" filter="url(#diamondReflectionBlur)" />
+          <path d={`M${720 + reflectionDrift * 0.13} ${waterY + wave + 2} q95 -12 190 0`} stroke="url(#diamondReflection)" strokeWidth="4" fill="none" filter="url(#diamondReflectionBlur)" />
+          <path d={`M${1330 - reflectionDrift * 0.16} ${waterY + wave - 3} q62 -8 132 1`} stroke="url(#diamondReflection)" strokeWidth="4.5" fill="none" filter="url(#diamondReflectionBlur)" />
         </g>
-        <path
-          d={`M0 ${waterY + wave} C280 ${waterY - 15 + wave}, 470 ${waterY + 17 + wave}, 720 ${waterY + wave} S1190 ${waterY - 17 + wave}, 1450 ${waterY + wave} S1740 ${waterY - 11 + wave}, 1920 ${waterY + wave}`}
-          fill="none" stroke="#a9eaff" strokeWidth="24" opacity={0.2 + waterOpacity * 0.34} filter="url(#waterGlow)"
-        />
-        <path
-          d={`M0 ${waterY + wave + 13} C280 ${waterY - 2 + wave}, 470 ${waterY + 30 + wave}, 720 ${waterY + wave + 13} S1190 ${waterY - 4 + wave}, 1450 ${waterY + wave + 13} S1740 ${waterY + 2 + wave}, 1920 ${waterY + wave + 13}`}
-          fill="none" stroke="#8bdfff" strokeWidth="3" opacity="0.28"
-        />
-        <path
-          d={`M0 ${waterY + wave} C280 ${waterY - 15 + wave}, 470 ${waterY + 17 + wave}, 720 ${waterY + wave} S1190 ${waterY - 17 + wave}, 1450 ${waterY + wave} S1740 ${waterY - 11 + wave}, 1920 ${waterY + wave}`}
-          fill="none" stroke="url(#surfaceLine)" strokeWidth="5" opacity="0.96"
-        />
-        <g opacity={0.22 + shimmer * 0.28}>
-          <path d={`M${180 + causticShift * 0.35} ${waterY + 18 + wave} l72 -5`} stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
-          <path d={`M${960 - causticShift * 0.22} ${waterY + 23 + wave} l118 -7`} stroke="#e7fbff" strokeWidth="2" strokeLinecap="round" />
-          <path d={`M${1510 + causticShift * 0.18} ${waterY + 15 + wave} l64 -4`} stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
+        <g opacity={0.16 + immersion * 0.22}>
+          <path d={`M${300 + reflectionDrift * 0.18} ${waterY + wave - 1} l42 -3`} stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
+          <path d={`M${1080 - reflectionDrift * 0.12} ${waterY + wave + 3} l58 -4`} stroke="#e9fbff" strokeWidth="1.8" strokeLinecap="round" />
+          <path d={`M${1600 + reflectionDrift * 0.08} ${waterY + wave - 2} l36 -2`} stroke="#ffffff" strokeWidth="2" strokeLinecap="round" />
         </g>
       </svg>
     </AbsoluteFill>
