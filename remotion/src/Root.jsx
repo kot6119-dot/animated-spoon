@@ -84,7 +84,7 @@ const DiamondsPolish = () => (
 // Third scene: clear rising water, diamonds fading with depth, and restrained reflected light.
 const WaterHidesDiamonds = () => {
   const frame = useCurrentFrame();
-  const waterY = interpolate(frame, [0, 35, 150, 240, 300], [930, 900, 650, 390, 300], {
+  const waterY = interpolate(frame, [0, 35, 150, 240, 300], [930, 880, 560, 260, 65], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
