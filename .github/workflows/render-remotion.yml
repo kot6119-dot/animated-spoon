@@ -1,4 +1,4 @@
-name: Render Remotion video
+name: Render Remotion videos
 
 on:
   workflow_dispatch:
@@ -33,12 +33,17 @@ jobs:
       - name: Install Remotion browser
         run: npx remotion browser ensure
 
-      - name: Render MP4
+      - name: Render first video (unchanged laser version)
         run: npm run render
 
-      - name: Upload rendered video
+      - name: Render second video (diamonds polish)
+        run: npm run render-diamonds
+
+      - name: Upload rendered videos
         uses: actions/upload-artifact@v4
         with:
-          name: remotion-video
-          path: remotion/out/bottle-film.mp4
+          name: remotion-videos
+          path: |
+            remotion/out/bottle-film.mp4
+            remotion/out/diamonds-polished.mov
           if-no-files-found: error
