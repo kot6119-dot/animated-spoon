@@ -2,6 +2,7 @@ import express from "express";
 import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
+import multer from "multer";
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -18,6 +19,19 @@ if (!CONTROL_TOKEN || CONTROL_TOKEN.length < 24) {
 fs.mkdirSync(PROFILE_DIR, { recursive: true });
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static("public"));
+
+const VIDEO_DIR = path.join(DATA_DIR, "remotion", "videos");
+fs.mkdirSync(VIDEO_DIR, { recursive: true });
+const videoUpload = multer({
+  dest: path.join(DATA_DIR, "remotion", "tmp"),
+  limits: { fileSize: 500 * 1024 * 1024, files: 2 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype !== "video/mp4" || !file.originalname.toLowerCase().endsWith(".mp4")) {
+      return cb(new Error("Разрешены только MP4-файлы."));
+    }
+    cb(null, true);
+  }
+});
 
 let context;
 let page;
@@ -51,6 +65,30 @@ function allowedUrl(raw) {
 }
 
 app.get("/health", (_req, res) => res.json({ ok: true, service: "browser-lab" }));
+
+// Store two Remotion source clips on the persistent Railway volume.
+app.post("/api/remotion/upload", authorized, videoUpload.fields([
+  { name: "bottle", maxCount: 1 },
+  { name: "diamonds", maxCount: 1 }
+]), (req, res) => {
+  try {
+    const bottle = req.files?.bottle?.[0];
+    const diamonds = req.files?.diamonds?.[0];
+    if (!bottle || !diamonds) {
+      for (const file of [bottle, diamonds].filter(Boolean)) fs.rmSync(file.path, { force: true });
+      return res.status(400).json({ error: "Нужны оба MP4-файла." });
+    }
+    fs.renameSync(bottle.path, path.join(VIDEO_DIR, "bottle-intro.mp4"));
+    fs.renameSync(diamonds.path, path.join(VIDEO_DIR, "diamonds-spill.mp4"));
+    res.json({
+      ok: true,
+      files: ["bottle-intro.mp4", "diamonds-spill.mp4"],
+      directory: VIDEO_DIR
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Не удалось сохранить видео: " + error.message });
+  }
+});
 
 app.get("/api/status", authorized, async (_req, res) => {
   try {
