@@ -65,13 +65,40 @@ const BottleScanOnly = () => (
   </AbsoluteFill>
 );
 
+// Separate treatment for the diamonds clip only.
+// A restrained lift in brightness and contrast makes existing diamond reflections
+// read more clearly without adding graphics or changing the original footage.
+const DiamondsPolish = () => (
+  <AbsoluteFill style={{ backgroundColor: "#080808" }}>
+    <OffthreadVideo
+      src={staticFile("videos/02-diamonds-spill.mov")}
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "contain",
+        filter: "brightness(1.12) contrast(1.05) saturate(1.03)",
+      }}
+    />
+  </AbsoluteFill>
+);
+
 export const RemotionRoot = () => (
-  <Composition
-    id="BottleScanOnly"
-    component={BottleScanOnly}
-    durationInFrames={150}
-    fps={30}
-    width={1920}
-    height={1080}
-  />
+  <>
+    <Composition
+      id="BottleScanOnly"
+      component={BottleScanOnly}
+      durationInFrames={150}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
+    <Composition
+      id="DiamondsPolish"
+      component={DiamondsPolish}
+      durationInFrames={180}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
+  </>
 );
