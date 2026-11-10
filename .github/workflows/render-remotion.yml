@@ -2,6 +2,12 @@ name: Render Remotion video
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'remotion/**'
+      - '.github/workflows/render-remotion.yml'
 
 permissions:
   contents: read
