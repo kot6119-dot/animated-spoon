@@ -8,8 +8,9 @@
 <label for="key">Ключ доступа к нашему терминалу</label><input id="key" type="password" autocomplete="off">
 <label for="bottle">Первое видео. Бутылка на столе</label><input id="bottle" type="file" accept="video/mp4,.mp4">
 <label for="diamonds">Второе видео. Бриллианты высыпаются</label><input id="diamonds" type="file" accept="video/mp4,.mp4">
-<button id="send">Отправить оба видео</button><p id="status" role="status" aria-live="polite">Ожидаю файлы.</p>
+<button id="send">Отправить оба видео</button><button id="render" type="button">Собрать итоговый ролик</button><button id="check" type="button">Проверить состояние сборки</button><p id="status" role="status" aria-live="polite">Ожидаю файлы.</p>
 </main><script>
 const $=id=>document.getElementById(id),status=$("status");
+async function api(path,options={}){const key=$("key").value.trim();if(!key)throw new Error("Сначала введи ключ доступа.");const r=await fetch(path,{...options,headers:{...(options.headers||{}),Authorization:"Bearer "+key}});const j=await r.json();if(!r.ok)throw new Error(j.error||"Ошибка "+r.status);return j;}
 $("send").addEventListener("click",async()=>{const key=$("key").value.trim(),a=$("bottle").files[0],b=$("diamonds").files[0];if(!key){status.textContent="Введи ключ доступа к терминалу.";return;}if(!a||!b){status.textContent="Выбери оба видео.";return;}if(!a.name.toLowerCase().endsWith(".mp4")||!b.name.toLowerCase().endsWith(".mp4")){status.textContent="Оба файла должны быть MP4.";return;}const data=new FormData();data.append("bottle",a,"bottle-intro.mp4");data.append("diamonds",b,"diamonds-spill.mp4");$("send").disabled=true;status.textContent="Отправляю видео на сервер. Не закрывай страницу.";try{const r=await fetch("/api/remotion/upload",{method:"POST",headers:{Authorization:"Bearer "+key},body:data});const j=await r.json();if(!r.ok)throw new Error(j.error||"Ошибка "+r.status);status.textContent="Готово! Оба видео сохранены на сервере.\n"+j.files.join("\n")+"\nПапка: "+j.directory;$("key").value="";}catch(e){status.textContent="Ошибка загрузки: "+e.message;}finally{$("send").disabled=false;}});
 </script></body></html>
