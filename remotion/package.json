@@ -6,7 +6,8 @@
   "scripts": {
     "studio": "remotion studio src/index.jsx",
     "render": "remotion render src/index.jsx BottleScanOnly out/bottle-film.mp4 --codec=h264",
-    "render-diamonds": "remotion render src/index.jsx DiamondsPolish out/diamonds-polished.mov --codec=h264"
+    "render-diamonds": "remotion render src/index.jsx DiamondsPolish out/diamonds-polished.mov --codec=h264",
+    "render-water": "remotion render src/index.jsx WaterHidesDiamonds out/water-hides-diamonds.mp4 --codec=h264"
   },
   "dependencies": {
     "@remotion/cli": "4.0.409",
