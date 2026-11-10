@@ -5,7 +5,7 @@
   "description": "Standalone Remotion video workspace",
   "scripts": {
     "studio": "remotion studio src/index.jsx",
-    "render": "remotion render src/index.jsx BottleFilm out/bottle-film.mp4 --codec=h264"
+    "render": "remotion render src/index.jsx BottleScanOnly out/bottle-film.mp4 --codec=h264"
   },
   "dependencies": {
     "@remotion/cli": "4.0.409",
