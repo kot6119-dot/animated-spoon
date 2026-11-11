@@ -181,15 +181,7 @@ const WaterHidesDiamonds = () => {
 
 const SmartphoneNotification = () => {
   const frame = useCurrentFrame();
-  const fade = interpolate(frame, [154, 170, 210], [0, 1, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const rise = interpolate(frame, [154, 170], [18, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const screenDim = interpolate(frame, [145, 165], [0, 0.38], {
+  const fade = interpolate(frame, [154, 170, 205], [0, 1, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -206,70 +198,57 @@ const SmartphoneNotification = () => {
           filter: "brightness(0.94) contrast(1.04) saturate(0.96)",
         }}
       />
-      {/* A restrained dark glass layer tames the over-bright final display without dimming the whole shot. */}
+      {/* One understated phone notification, angled to follow the handset. */}
       <div
         style={{
           position: "absolute",
-          left: "38.8%",
-          top: "15.5%",
-          width: "22.4%",
-          height: "69%",
-          borderRadius: 44,
-          background: "#03070d",
-          opacity: screenDim,
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          left: "39.5%",
-          top: "28%",
-          width: "21%",
-          minHeight: "43%",
+          left: "36.5%",
+          top: "30.5%",
+          width: "27%",
+          minHeight: "29%",
           boxSizing: "border-box",
-          padding: "2.1% 1.45%",
-          borderRadius: 28,
-          background: "linear-gradient(145deg, rgba(24,29,36,0.96), rgba(7,10,15,0.94))",
-          border: "1px solid rgba(255,255,255,0.22)",
-          boxShadow: "0 18px 48px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.12)",
+          padding: "1.35% 1.55%",
+          borderRadius: 24,
+          background: "rgba(25, 29, 35, 0.91)",
+          border: "1px solid rgba(255,255,255,0.16)",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.22)",
           color: "#f7f8fa",
           fontFamily: "Arial, Helvetica, sans-serif",
           opacity: fade,
-          transform: `translateY(${rise}px)`,
+          transform: "rotate(24deg)",
+          transformOrigin: "center center",
           pointerEvents: "none",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 13 }}>
           <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: "linear-gradient(135deg, #c43a32, #761d1b)",
+            width: 24, height: 24, borderRadius: 7,
+            background: "#b93630",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 18, fontWeight: 700, color: "#fff",
+            fontSize: 15, fontWeight: 700, color: "#fff",
           }}>!</div>
-          <div style={{ fontSize: 19, letterSpacing: 1.7, fontWeight: 700, color: "#f0c77a" }}>
+          <div style={{ fontSize: 16, letterSpacing: 0.8, fontWeight: 700, color: "#f0c77a" }}>
             BREAKING NEWS
           </div>
-          <div style={{ marginLeft: "auto", fontSize: 14, color: "rgba(255,255,255,0.58)" }}>СЕЙЧАС</div>
+          <div style={{ marginLeft: "auto", fontSize: 12, color: "rgba(255,255,255,0.62)" }}>СЕЙЧАС</div>
         </div>
-        <div style={{ height: 1, background: "rgba(255,255,255,0.16)", marginBottom: 22 }} />
-        <div style={{ fontSize: 30, lineHeight: 1.05, fontWeight: 800, color: "#fff", marginBottom: 18 }}>
+        <div style={{ height: 1, background: "rgba(255,255,255,0.15)", marginBottom: 13 }} />
+        <div style={{ fontSize: 25, lineHeight: 1.08, fontWeight: 800, color: "#fff", marginBottom: 10 }}>
           СРОЧНО!
         </div>
-        <div style={{ fontSize: 23, lineHeight: 1.18, fontWeight: 700, color: "#f2f3f5", marginBottom: 14 }}>
+        <div style={{ fontSize: 19, lineHeight: 1.18, fontWeight: 700, color: "#f2f3f5", marginBottom: 8 }}>
           АЭРОПОРТ ШЕРЕМЕТЬЕВО
         </div>
-        <div style={{ fontSize: 20, lineHeight: 1.25, color: "rgba(255,255,255,0.86)", marginBottom: 18 }}>
+        <div style={{ fontSize: 16, lineHeight: 1.2, color: "rgba(255,255,255,0.88)", marginBottom: 10 }}>
           ОБНАРУЖЕНА КОНТРАБАНДА
         </div>
-        <div style={{ fontSize: 29, lineHeight: 1.1, fontWeight: 800, color: "#f0c77a" }}>
+        <div style={{ fontSize: 23, lineHeight: 1.08, fontWeight: 800, color: "#f0c77a" }}>
           НА 2 000 000 $
         </div>
       </div>
     </AbsoluteFill>
   );
 };
-
 export const RemotionRoot = () => (
   <>
     <Composition id="BottleScanOnly" component={BottleScanOnly} durationInFrames={150} fps={30} width={1920} height={1080} />
