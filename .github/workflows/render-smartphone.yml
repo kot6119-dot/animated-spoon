@@ -2,6 +2,11 @@ name: Render smartphone scene
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/render-smartphone.yml'
+      - 'remotion/src/Root.jsx'
+      - 'remotion/public/videos/I2V Камера плавно прибли_11-10_23_04_17.mp4'
 
 jobs:
   render-smartphone:
