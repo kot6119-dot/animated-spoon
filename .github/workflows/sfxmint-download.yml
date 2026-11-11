@@ -1,0 +1,83 @@
+name: Download sounds with SFXMint
+
+on:
+  workflow_dispatch:
+    inputs:
+      category:
+        description: Where to save the sound files
+        required: true
+        type: choice
+        options:
+          - Notifications
+          - Effects
+          - Transitions
+      sounds:
+        description: "SFXMint role names, separated by spaces (for example: notification click error)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  download-sounds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install and run SFXMint
+        id: download
+        shell: bash
+        env:
+          SOUND_NAMES: ${{ inputs.sounds }}
+          CATEGORY: ${{ inputs.category }}
+        run: |
+          set -euo pipefail
+
+          case "$CATEGORY" in
+            Notifications|Effects|Transitions)
+              TARGET_DIR="SOUND_LIBRARY/$CATEGORY"
+              ;;
+            *)
+              echo "Unsupported sound category."
+              exit 1
+              ;;
+          esac
+
+          read -r -a names <<< "$SOUND_NAMES"
+          if [ "${#names[@]}" -lt 1 ]; then
+            echo "Enter at least one SFXMint role name."
+            exit 1
+          fi
+
+          for name in "${names[@]}"; do
+            if [[ ! "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{0,49}$ ]]; then
+              echo "Invalid role name: $name"
+              echo "Use letters, numbers and hyphens only."
+              exit 1
+            fi
+          done
+
+          mkdir -p "$TARGET_DIR"
+          echo "Downloading into $TARGET_DIR"
+          npx --yes sfxmint@0.2.12 add "${names[@]}" --out "$TARGET_DIR" --format mp3
+
+      - name: Save downloaded files to the project
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add SOUND_LIBRARY/
+          if git diff --cached --quiet; then
+            echo "No new sound files were added."
+            exit 0
+          fi
+          git commit -m "Add SFXMint sound effects"
+          git push
