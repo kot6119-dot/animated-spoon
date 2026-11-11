@@ -12,9 +12,12 @@ on:
           - Effects
           - Transitions
       sounds:
-        description: "SFXMint role names, separated by spaces (for example: notification click error)"
+        description: "SFXMint role names, separated by spaces"
         required: true
         type: string
+  push:
+    paths:
+      - ".github/SFXMINT_REQUEST.txt"
 
 permissions:
   contents: write
@@ -31,42 +34,49 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install and run SFXMint
-        id: download
+      - name: Install and download with SFXMint
         shell: bash
         env:
+          EVENT_NAME: ${{ github.event_name }}
           SOUND_NAMES: ${{ inputs.sounds }}
-          CATEGORY: ${{ inputs.category }}
+          CATEGORY_INPUT: ${{ inputs.category }}
         run: |
           set -euo pipefail
 
-          case "$CATEGORY" in
-            Notifications|Effects|Transitions)
-              TARGET_DIR="SOUND_LIBRARY/$CATEGORY"
-              ;;
-            *)
-              echo "Unsupported sound category."
-              exit 1
-              ;;
-          esac
-
-          read -r -a names <<< "$SOUND_NAMES"
-          if [ "${#names[@]}" -lt 1 ]; then
-            echo "Enter at least one SFXMint role name."
-            exit 1
-          fi
-
-          for name in "${names[@]}"; do
-            if [[ ! "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{0,49}$ ]]; then
-              echo "Invalid role name: $name"
-              echo "Use letters, numbers and hyphens only."
+          if [[ "$EVENT_NAME" == "push" ]]; then
+            REQUEST_FILE=".github/SFXMINT_REQUEST.txt"
+            CATEGORY="$(sed -n 's/^category=//p' "$REQUEST_FILE" | head -n 1)"
+            QUERY="$(sed -n 's/^query=//p' "$REQUEST_FILE" | head -n 1)"
+            if [[ -z "$QUERY" ]]; then
+              echo "The request file has no query."
               exit 1
             fi
-          done
-
-          mkdir -p "$TARGET_DIR"
-          echo "Downloading into $TARGET_DIR"
-          npx --yes sfxmint@0.2.12 add "${names[@]}" --out "$TARGET_DIR" --format mp3
+            case "$CATEGORY" in
+              Notifications|Effects|Transitions) TARGET_DIR="SOUND_LIBRARY/$CATEGORY" ;;
+              *) echo "Unsupported category: $CATEGORY"; exit 1 ;;
+            esac
+            echo "Searching SFXMint for: $QUERY"
+            npx --yes sfxmint@0.2.12 search "$QUERY" --out "$TARGET_DIR" --format mp3 --json
+          else
+            CATEGORY="$CATEGORY_INPUT"
+            case "$CATEGORY" in
+              Notifications|Effects|Transitions) TARGET_DIR="SOUND_LIBRARY/$CATEGORY" ;;
+              *) echo "Unsupported category: $CATEGORY"; exit 1 ;;
+            esac
+            read -r -a names <<< "$SOUND_NAMES"
+            if [[ "${#names[@]}" -lt 1 ]]; then
+              echo "Enter at least one SFXMint role name."
+              exit 1
+            fi
+            for name in "${names[@]}"; do
+              if [[ ! "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{0,49}$ ]]; then
+                echo "Invalid role name: $name"
+                exit 1
+              fi
+            done
+            echo "Downloading named roles into $TARGET_DIR"
+            npx --yes sfxmint@0.2.12 add "${names[@]}" --out "$TARGET_DIR" --format mp3
+          fi
 
       - name: Save downloaded files to the project
         shell: bash
