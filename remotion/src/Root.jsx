@@ -178,10 +178,103 @@ const WaterHidesDiamonds = () => {
   );
 };
 
+
+const SmartphoneNotification = () => {
+  const frame = useCurrentFrame();
+  const fade = interpolate(frame, [154, 170, 210], [0, 1, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const rise = interpolate(frame, [154, 170], [18, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const screenDim = interpolate(frame, [145, 165], [0, 0.38], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#050505" }}>
+      <OffthreadVideo
+        src={staticFile("videos/I2V Камера плавно прибли_11-10_23_04_17.mp4")}
+        muted
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "contain",
+          filter: "brightness(0.94) contrast(1.04) saturate(0.96)",
+        }}
+      />
+      {/* A restrained dark glass layer tames the over-bright final display without dimming the whole shot. */}
+      <div
+        style={{
+          position: "absolute",
+          left: "38.8%",
+          top: "15.5%",
+          width: "22.4%",
+          height: "69%",
+          borderRadius: 44,
+          background: "#03070d",
+          opacity: screenDim,
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: "39.5%",
+          top: "28%",
+          width: "21%",
+          minHeight: "43%",
+          boxSizing: "border-box",
+          padding: "2.1% 1.45%",
+          borderRadius: 28,
+          background: "linear-gradient(145deg, rgba(24,29,36,0.96), rgba(7,10,15,0.94))",
+          border: "1px solid rgba(255,255,255,0.22)",
+          boxShadow: "0 18px 48px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.12)",
+          color: "#f7f8fa",
+          fontFamily: "Arial, Helvetica, sans-serif",
+          opacity: fade,
+          transform: `translateY(${rise}px)`,
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: "linear-gradient(135deg, #c43a32, #761d1b)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 18, fontWeight: 700, color: "#fff",
+          }}>!</div>
+          <div style={{ fontSize: 19, letterSpacing: 1.7, fontWeight: 700, color: "#f0c77a" }}>
+            BREAKING NEWS
+          </div>
+          <div style={{ marginLeft: "auto", fontSize: 14, color: "rgba(255,255,255,0.58)" }}>СЕЙЧАС</div>
+        </div>
+        <div style={{ height: 1, background: "rgba(255,255,255,0.16)", marginBottom: 22 }} />
+        <div style={{ fontSize: 30, lineHeight: 1.05, fontWeight: 800, color: "#fff", marginBottom: 18 }}>
+          СРОЧНО!
+        </div>
+        <div style={{ fontSize: 23, lineHeight: 1.18, fontWeight: 700, color: "#f2f3f5", marginBottom: 14 }}>
+          АЭРОПОРТ ШЕРЕМЕТЬЕВО
+        </div>
+        <div style={{ fontSize: 20, lineHeight: 1.25, color: "rgba(255,255,255,0.86)", marginBottom: 18 }}>
+          ОБНАРУЖЕНА КОНТРАБАНДА
+        </div>
+        <div style={{ fontSize: 29, lineHeight: 1.1, fontWeight: 800, color: "#f0c77a" }}>
+          НА 2 000 000 $
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 export const RemotionRoot = () => (
   <>
     <Composition id="BottleScanOnly" component={BottleScanOnly} durationInFrames={150} fps={30} width={1920} height={1080} />
     <Composition id="DiamondsPolish" component={DiamondsPolish} durationInFrames={180} fps={30} width={1920} height={1080} />
     <Composition id="WaterHidesDiamonds" component={WaterHidesDiamonds} durationInFrames={300} fps={30} width={1920} height={1080} />
+    <Composition id="SmartphoneNotification" component={SmartphoneNotification} durationInFrames={210} fps={30} width={1920} height={1080} />
   </>
 );

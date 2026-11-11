@@ -42,6 +42,9 @@ jobs:
       - name: Render third animation (water hides diamonds)
         run: npm run render-water
 
+      - name: Render fourth scene (smartphone breaking news)
+        run: npm run render-smartphone
+
       - name: Upload rendered videos and animation
         uses: actions/upload-artifact@v4
         with:
@@ -50,4 +53,5 @@ jobs:
             remotion/out/bottle-film.mp4
             remotion/out/diamonds-polished.mov
             remotion/out/water-hides-diamonds.mp4
+            remotion/out/smartphone-notification.mp4
           if-no-files-found: error
