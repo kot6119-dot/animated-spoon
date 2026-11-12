@@ -1,3 +1,4 @@
+import { ImperialLuxeReel, IMPERIAL_LUXE_REEL_DURATION } from "./ImperialLuxeReel";
 import React from "react";
 import {
   AbsoluteFill,
@@ -251,6 +252,7 @@ const SmartphoneNotification = () => {
 };
 export const RemotionRoot = () => (
   <>
+    <Composition id="ImperialLuxeReel" component={ImperialLuxeReel} durationInFrames={IMPERIAL_LUXE_REEL_DURATION} fps={30} width={1080} height={1920} />
     <Composition id="BottleScanOnly" component={BottleScanOnly} durationInFrames={150} fps={30} width={1920} height={1080} />
     <Composition id="DiamondsPolish" component={DiamondsPolish} durationInFrames={180} fps={30} width={1920} height={1080} />
     <Composition id="WaterHidesDiamonds" component={WaterHidesDiamonds} durationInFrames={300} fps={30} width={1920} height={1080} />

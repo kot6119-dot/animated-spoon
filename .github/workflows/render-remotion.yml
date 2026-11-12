@@ -45,6 +45,9 @@ jobs:
       - name: Render fourth scene (smartphone breaking news)
         run: npm run render-smartphone
 
+      - name: Render IMPERIAL LUXE vertical Instagram Reel (video only)
+        run: npm run render-reel
+
       - name: Upload rendered videos and animation
         uses: actions/upload-artifact@v4
         with:
@@ -54,4 +57,5 @@ jobs:
             remotion/out/diamonds-polished.mov
             remotion/out/water-hides-diamonds.mp4
             remotion/out/smartphone-notification.mp4
+            remotion/out/imperial-luxe-reel-video-only.mp4
           if-no-files-found: error
