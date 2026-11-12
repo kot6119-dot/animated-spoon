@@ -7,11 +7,11 @@ const SCENE_2 = 207; // 99 frames normal, then the diamond spill slowed to 0.75x
 const SCENE_3 = 300;
 const SCENE_4 = 210;
 const START_2 = SCENE_1 - TRANSITION;
-const START_3 = START_2 + SCENE_2; // Scene 2 fades fully to black before scene 3 appears
+const START_3 = START_2 + SCENE_2 - TRANSITION; // 12-frame cross-dissolve from the diamond spill into the floating diamonds
 const START_4 = START_3 + SCENE_3 - TRANSITION;
 export const IMPERIAL_LUXE_REEL_DURATION = START_4 + SCENE_4;
 
-const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, zoomIn = false, zoomOut = false, waterHighlight = false, phoneFlash = false, playbackRate = 1, slowStartFrame = null, slowPlaybackRate = 0.75, videoFilter = "none", diamondVignette = false, children }) => {
+const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, zoomIn = false, zoomOut = false, waterHighlight = false, phoneFlash = false, diamondFlash = false, playbackRate = 1, slowStartFrame = null, slowPlaybackRate = 0.75, videoFilter = "none", diamondVignette = false, children }) => {
   const frame = useCurrentFrame();
   const fadeInOpacity = fadeIn
     ? interpolate(frame, [0, TRANSITION], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
@@ -27,7 +27,10 @@ const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, zoomIn = false
     ? interpolate(frame, [duration - TRANSITION, duration - 5, duration], [0, 0.2, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
     : 0;
   const flash = phoneFlash
-    ? interpolate(frame, [0, 2, 7], [0.92, 0.55, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    ? interpolate(frame, [0, 3, 9, 14], [0.24, 0.42, 0.14, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    : 0;
+  const diamondGlint = diamondFlash
+    ? interpolate(frame, [duration - 14, duration - 8, duration], [0, 0.72, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
     : 0;
   return (
     <AbsoluteFill style={{ opacity, transform: `scale(${scale})`, backgroundColor: "#050505" }}>
@@ -45,8 +48,9 @@ const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, zoomIn = false
       )}
       {diamondVignette && <AbsoluteFill style={{ pointerEvents: "none", background: "radial-gradient(ellipse at center, rgba(0,0,0,0) 54%, rgba(0,0,0,0.20) 100%)" }} />}
       {children}
-      {highlight > 0 && <AbsoluteFill style={{ backgroundColor: "#eafaff", opacity: highlight }} />}
-      {flash > 0 && <AbsoluteFill style={{ backgroundColor: "#fff8e8", opacity: flash }} />}
+      {highlight > 0 && <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 42%, rgba(224,248,255,0.62) 0%, rgba(170,224,245,0.20) 34%, rgba(3,7,13,0) 72%)", opacity: highlight }} />}
+      {diamondGlint > 0 && <AbsoluteFill style={{ background: "radial-gradient(ellipse at 52% 48%, rgba(255,250,229,0.95) 0%, rgba(235,195,119,0.48) 12%, rgba(235,195,119,0.12) 30%, rgba(0,0,0,0) 62%)", mixBlendMode: "screen", opacity: diamondGlint }} />}
+      {flash > 0 && <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 46%, rgba(255,246,220,0.88) 0%, rgba(230,190,116,0.34) 26%, rgba(3,5,8,0) 72%)", mixBlendMode: "screen", opacity: flash }} />}
     </AbsoluteFill>
   );
 };
@@ -55,7 +59,7 @@ const PhoneBreakingNews = () => (
   <div style={{
     position: "absolute", left: "22%", top: "29%", width: "56%", boxSizing: "border-box",
     padding: "3.2% 3.6%", borderRadius: 26, background: "rgba(25, 29, 35, 0.93)",
-    border: "1px solid rgba(255,255,255,0.18)", boxShadow: "0 10px 34px rgba(0,0,0,0.35)",
+    border: "1px solid rgba(232,194,124,0.42)", backgroundImage: "linear-gradient(135deg, rgba(255,255,255,0.08), transparent 42%), linear-gradient(160deg, rgba(25,29,35,0.96), rgba(11,14,18,0.94))", backdropFilter: "blur(12px)", boxShadow: "0 14px 42px rgba(0,0,0,0.48), 0 0 22px rgba(220,177,99,0.16), inset 0 1px 0 rgba(255,255,255,0.16)",
     color: "#f7f8fa", fontFamily: "Arial, Helvetica, sans-serif",
     transform: "rotate(24deg)", transformOrigin: "center center", pointerEvents: "none"
   }}>
@@ -78,7 +82,7 @@ export const ImperialLuxeReel = () => (
       <ReelClip src="videos/01-bottle-scan.mp4" duration={SCENE_1} fadeIn={false} fadeOut />
     </Sequence>
     <Sequence from={START_2} durationInFrames={SCENE_2}>
-      <ReelClip src="videos/02-diamonds-spill.mov" duration={SCENE_2} fadeIn fadeOut zoomOut slowStartFrame={99} slowPlaybackRate={0.75} videoFilter="brightness(1.07) contrast(1.12) saturate(1.08) sepia(0.035)" diamondVignette />
+      <ReelClip src="videos/02-diamonds-spill.mov" duration={SCENE_2} fadeIn fadeOut zoomOut slowStartFrame={99} slowPlaybackRate={0.75} videoFilter="brightness(1.07) contrast(1.12) saturate(1.08) sepia(0.035)" diamondVignette diamondFlash />
     </Sequence>
     <Sequence from={START_3} durationInFrames={SCENE_3}>
       <ReelClip src="videos/water-hides-diamonds-final-touch.mp4" duration={SCENE_3} fadeIn fadeOut zoomIn waterHighlight />
