@@ -1,4 +1,4 @@
-name: Download sounds with SFXMint
+name: Search sounds with SFXMint (preview only)
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  download-sounds:
+  search-sounds:
     runs-on: ubuntu-latest
     steps:
       - name: Check out project
@@ -20,118 +20,73 @@ jobs:
         with:
           node-version: 20
 
-      - name: Search and download an MP3 from the official SFXMint API
+      - name: Search SFXMint and save preview links (no downloads)
         shell: bash
         run: |
           set -euo pipefail
           REQUEST_FILE=".github/SFXMINT_REQUEST.txt"
           CATEGORY="$(sed -n 's/^category=//p' "$REQUEST_FILE" | head -n 1)"
           QUERY="$(sed -n 's/^query=//p' "$REQUEST_FILE" | head -n 1)"
-
+          REQUEST_ID="$(sed -n 's/^request_id=//p' "$REQUEST_FILE" | head -n 1)"
           case "$CATEGORY" in
-            Notifications|Effects|Transitions) TARGET_DIR="SOUND_LIBRARY/$CATEGORY" ;;
+            Notifications|Effects|Transitions) ;;
             *) echo "::error::Unsupported category: $CATEGORY"; exit 1 ;;
           esac
           if [[ -z "$QUERY" ]]; then
             echo "::error::The request file has no query."
             exit 1
           fi
-
-          export CATEGORY QUERY TARGET_DIR
+          export CATEGORY QUERY REQUEST_ID
           node <<'NODE'
           const fs = require('node:fs/promises');
-          const path = require('node:path');
-          const crypto = require('node:crypto');
-
           async function main() {
             const endpoint = new URL('https://sfxmint.com/api/v1/search');
             endpoint.searchParams.set('q', process.env.QUERY);
-            endpoint.searchParams.set('limit', '5');
+            endpoint.searchParams.set('limit', '10');
             endpoint.searchParams.set('format', 'mp3');
-
             console.log('Searching SFXMint:', process.env.QUERY);
-            const searchResponse = await fetch(endpoint);
-            const searchText = await searchResponse.text();
-            if (!searchResponse.ok) {
-              console.error('SFXMint search failed:', searchResponse.status, searchText.slice(0, 2000));
-              process.exit(1);
-            }
-
+            const response = await fetch(endpoint);
+            const body = await response.text();
+            if (!response.ok) throw new Error('SFXMint search failed: HTTP ' + response.status + ' ' + body.slice(0, 2000));
             let payload;
-            try { payload = JSON.parse(searchText); }
-            catch { throw new Error('SFXMint returned invalid JSON: ' + searchText.slice(0, 1000)); }
-
+            try { payload = JSON.parse(body); }
+            catch { throw new Error('SFXMint returned invalid JSON: ' + body.slice(0, 1000)); }
             const results = Array.isArray(payload) ? payload
               : Array.isArray(payload.results) ? payload.results
               : Array.isArray(payload.sounds) ? payload.sounds
-              : Array.isArray(payload.candidates) ? payload.candidates
-              : [];
-
-            const sound = results.find(item => item && typeof item.mp3_url === 'string' && item.mp3_url.startsWith('https://'));
-            if (!sound) {
-              console.error('No downloadable MP3 found. API response:', JSON.stringify(payload).slice(0, 5000));
-              process.exit(1);
-            }
-
-            await fs.mkdir(process.env.TARGET_DIR, { recursive: true });
-            const slug = String(sound.slug || sound.id || 'sfxmint-sound').replace(/[^a-zA-Z0-9_-]/g, '-');
-            let filename = slug + '.mp3';
-            let outputPath = path.join(process.env.TARGET_DIR, filename);
-            let suffix = 2;
-            while (true) {
-              try { await fs.access(outputPath); outputPath = path.join(process.env.TARGET_DIR, slug + '-' + suffix++ + '.mp3'); }
-              catch { break; }
-            }
-
-            console.log('Downloading:', sound.title || slug);
-            const audioResponse = await fetch(sound.mp3_url);
-            if (!audioResponse.ok) {
-              const body = await audioResponse.text();
-              throw new Error('MP3 download failed: HTTP ' + audioResponse.status + ' ' + body.slice(0, 1000));
-            }
-            const bytes = Buffer.from(await audioResponse.arrayBuffer());
-            const isMp3 = bytes.length > 3 &&
-              (bytes.subarray(0, 3).toString() === 'ID3' ||
-               (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0));
-            if (!isMp3) throw new Error('SFXMint response does not look like an MP3 file (' + bytes.length + ' bytes).');
-
-            await fs.writeFile(outputPath, bytes);
-            const sha256 = crypto.createHash('sha256').update(bytes).digest('hex');
-            const manifestPath = path.join(process.env.TARGET_DIR, 'SFXMINT_MANIFEST.json');
-            let manifest = [];
-            try { manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8')); }
-            catch (error) { if (error.code !== 'ENOENT') throw error; }
-            if (!Array.isArray(manifest)) manifest = [];
-            manifest.push({
-              file: path.basename(outputPath),
-              title: sound.title || slug,
-              source_url: sound.page_url || sound.url || null,
-              mp3_url: sound.mp3_url,
-              license: sound.license || 'CC0 1.0',
-              sha256,
-              bytes: bytes.length,
-              requested_as: process.env.QUERY
-            });
-            await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
-            console.log('Saved and verified:', outputPath, '(' + bytes.length + ' bytes, SHA-256 ' + sha256 + ')');
+              : Array.isArray(payload.candidates) ? payload.candidates : [];
+            const candidates = results.filter(x => x && typeof x.mp3_url === 'string' && x.mp3_url.startsWith('https://'))
+              .slice(0, 10).map(x => ({
+                title: x.title || x.slug || x.id || 'Untitled sound',
+                page_url: x.page_url || x.url || null,
+                mp3_url: x.mp3_url,
+                license: x.license || null
+              }));
+            const preview = {
+              request_id: process.env.REQUEST_ID,
+              category: process.env.CATEGORY,
+              query: process.env.QUERY,
+              downloaded: false,
+              candidates
+            };
+            await fs.writeFile('.github/SFXMINT_PREVIEW.json', JSON.stringify(preview, null, 2) + '\\n');
+            console.log('Found ' + candidates.length + ' preview candidates. No audio files were downloaded.');
+            for (const [i, x] of candidates.entries()) console.log((i + 1) + '. ' + x.title + ' | ' + x.page_url + ' | ' + x.mp3_url);
+            if (!candidates.length) throw new Error('No previewable MP3 candidates found.');
           }
-
-          main().catch(error => {
-            console.error('::error::' + error.message);
-            process.exit(1);
-          });
+          main().catch(e => { console.error('::error::' + e.message); process.exit(1); });
           NODE
 
-      - name: Commit downloaded sound files
+      - name: Commit preview list only
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add SOUND_LIBRARY/
+          git add .github/SFXMINT_PREVIEW.json
           if git diff --cached --quiet; then
-            echo "No new sound files were added."
+            echo "No preview list changes."
             exit 0
           fi
-          git commit -m "Add SFXMint sound effects"
+          git commit -m "Add SFXMint sound preview candidates"
           git push
