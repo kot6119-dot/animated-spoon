@@ -72,11 +72,12 @@ const DiamondsPolish = () => (
   <AbsoluteFill style={{ backgroundColor: "#080808" }}>
     <OffthreadVideo
       src={staticFile("videos/02-diamonds-spill.mov")}
+      playbackRate={0.87}
       style={{
         width: "100%",
         height: "100%",
         objectFit: "contain",
-        filter: "brightness(1.12) contrast(1.05) saturate(1.03)",
+        filter: "brightness(1.07) contrast(1.12) saturate(1.08) sepia(0.035)",
       }}
     />
   </AbsoluteFill>
