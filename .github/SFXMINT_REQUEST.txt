@@ -1,3 +1,3 @@
 category=Effects
-query=small stones tiny hard objects pouring falling scattering onto wooden table natural foley
-request_id=small-stones-wood-table-preview-2026-11-11
+query=dried peas beans lentils pouring spilling scattering bouncing onto wooden table close up foley
+request_id=peas-beans-spilling-wood-table-preview-2026-11-12
