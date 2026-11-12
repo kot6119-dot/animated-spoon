@@ -1,0 +1,2 @@
+query=smartphone
+request_id=openpix-test-2026-11-11
