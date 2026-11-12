@@ -111,24 +111,24 @@ const WaterHidesDiamonds = () => {
       <AbsoluteFill
         style={{
           clipPath: `inset(${waterY}px 0 0 0)`,
-          filter: `blur(${underwaterBlur}px) saturate(0.72)`,
+          filter: `blur(${underwaterBlur}px) saturate(0.82) brightness(1.04)`,
         }}
       >
         <Img
           src={staticFile("images/diamonds-for-remotion.png")}
-          style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.9) contrast(0.88)" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.98) contrast(0.86)" }}
         />
         <svg viewBox="0 0 1920 1080" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
           <defs>
             <linearGradient id="depthFade" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#07131d" stopOpacity={0.12 + immersion * 0.12} />
-              <stop offset="28%" stopColor="#07131d" stopOpacity={0.22 + immersion * 0.22} />
-              <stop offset="65%" stopColor="#030910" stopOpacity={0.42 + immersion * 0.32} />
-              <stop offset="100%" stopColor="#02060b" stopOpacity={0.58 + immersion * 0.34} />
+              <stop offset="0%" stopColor="#07131d" stopOpacity={0.07 + immersion * 0.08} />
+              <stop offset="28%" stopColor="#07131d" stopOpacity={0.14 + immersion * 0.14} />
+              <stop offset="65%" stopColor="#030910" stopOpacity={0.30 + immersion * 0.24} />
+              <stop offset="100%" stopColor="#02060b" stopOpacity={0.42 + immersion * 0.28} />
             </linearGradient>
             <linearGradient id="clearWaterTint" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#b9efff" stopOpacity="0.055" />
-              <stop offset="100%" stopColor="#3b8eb5" stopOpacity="0.035" />
+              <stop offset="0%" stopColor="#b9efff" stopOpacity="0.075" />
+              <stop offset="100%" stopColor="#3b8eb5" stopOpacity="0.055" />
             </linearGradient>
           </defs>
           <rect x="0" y={waterY} width="1920" height={1080 - waterY} fill="url(#depthFade)" />
