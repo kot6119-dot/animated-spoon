@@ -13,12 +13,13 @@ export const IMPERIAL_LUXE_REEL_DURATION = START_4 + SCENE_4;
 
 const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, zoomIn = false, zoomOut = false, waterHighlight = false, children }) => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(
-    frame,
-    [0, fadeIn ? TRANSITION : 0, Math.max(0, duration - (fadeOut ? TRANSITION : 0)), duration],
-    [fadeIn ? 0 : 1, 1, 1, fadeOut ? 0 : 1],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-  );
+  const fadeInOpacity = fadeIn
+    ? interpolate(frame, [0, TRANSITION], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    : 1;
+  const fadeOutOpacity = fadeOut
+    ? interpolate(frame, [duration - TRANSITION, duration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    : 1;
+  const opacity = Math.min(fadeInOpacity, fadeOutOpacity);
   let scale = 1;
   if (zoomIn) scale = interpolate(frame, [0, TRANSITION], [1.09, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   if (zoomOut) scale = interpolate(frame, [duration - TRANSITION, duration], [1, 1.09], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
