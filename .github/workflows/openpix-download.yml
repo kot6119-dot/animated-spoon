@@ -1,0 +1,62 @@
+name: Download images with Openpix
+
+on:
+  push:
+    paths:
+      - ".github/IMAGE_REQUEST.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  download-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Install Openpix
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="0.1.1"
+          ARCHIVE="openpix_${VERSION}_linux_amd64.tar.gz"
+          curl -fsSL "https://github.com/panakour/openpix/releases/download/v${VERSION}/${ARCHIVE}" -o /tmp/openpix.tar.gz
+          mkdir -p /tmp/openpix
+          tar -xzf /tmp/openpix.tar.gz -C /tmp/openpix
+          chmod +x /tmp/openpix/openpix
+          /tmp/openpix/openpix --help
+
+      - name: Search and download test images
+        shell: bash
+        run: |
+          set -euo pipefail
+          QUERY="$(sed -n 's/^query=//p' .github/IMAGE_REQUEST.txt | head -n 1)"
+          if [[ -z "$QUERY" ]]; then
+            echo "::error::The image request has no query."
+            exit 1
+          fi
+          mkdir -p "$HOME/Pictures/openpix"
+          /tmp/openpix/openpix openverse -q "$QUERY" -n 3 --silent
+          mkdir -p IMAGE_LIBRARY
+          if compgen -G "$HOME/Pictures/openpix/*" > /dev/null; then
+            cp -n "$HOME"/Pictures/openpix/* IMAGE_LIBRARY/
+          else
+            echo "::error::Openpix did not download any images."
+            exit 1
+          fi
+          find IMAGE_LIBRARY -maxdepth 1 -type f -printf '%f %s bytes\n'
+
+      - name: Commit downloaded images
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add IMAGE_LIBRARY/
+          if git diff --cached --quiet; then
+            echo "No new images were added."
+            exit 0
+          fi
+          git commit -m "Add images downloaded with Openpix"
+          git push
