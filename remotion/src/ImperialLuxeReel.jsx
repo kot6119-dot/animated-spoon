@@ -7,11 +7,11 @@ const SCENE_2 = 207; // 99 frames normal, then the diamond spill slowed to 0.75x
 const SCENE_3 = 300;
 const SCENE_4 = 210;
 const START_2 = SCENE_1 - TRANSITION;
-const START_3 = START_2 + SCENE_2 - TRANSITION;
+const START_3 = START_2 + SCENE_2; // Scene 2 fades fully to black before scene 3 appears
 const START_4 = START_3 + SCENE_3 - TRANSITION;
 export const IMPERIAL_LUXE_REEL_DURATION = START_4 + SCENE_4;
 
-const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, zoomIn = false, zoomOut = false, waterHighlight = false, playbackRate = 1, slowStartFrame = null, slowPlaybackRate = 0.75, videoFilter = "none", diamondVignette = false, children }) => {
+const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, zoomIn = false, zoomOut = false, waterHighlight = false, phoneFlash = false, playbackRate = 1, slowStartFrame = null, slowPlaybackRate = 0.75, videoFilter = "none", diamondVignette = false, children }) => {
   const frame = useCurrentFrame();
   const fadeInOpacity = fadeIn
     ? interpolate(frame, [0, TRANSITION], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
@@ -25,6 +25,9 @@ const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, zoomIn = false
   if (zoomOut) scale = interpolate(frame, [duration - TRANSITION, duration], [1, 1.09], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const highlight = waterHighlight
     ? interpolate(frame, [duration - TRANSITION, duration - 5, duration], [0, 0.2, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    : 0;
+  const flash = phoneFlash
+    ? interpolate(frame, [0, 2, 7], [0.92, 0.55, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
     : 0;
   return (
     <AbsoluteFill style={{ opacity, transform: `scale(${scale})`, backgroundColor: "#050505" }}>
@@ -43,6 +46,7 @@ const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, zoomIn = false
       {diamondVignette && <AbsoluteFill style={{ pointerEvents: "none", background: "radial-gradient(ellipse at center, rgba(0,0,0,0) 54%, rgba(0,0,0,0.20) 100%)" }} />}
       {children}
       {highlight > 0 && <AbsoluteFill style={{ backgroundColor: "#eafaff", opacity: highlight }} />}
+      {flash > 0 && <AbsoluteFill style={{ backgroundColor: "#fff8e8", opacity: flash }} />}
     </AbsoluteFill>
   );
 };
@@ -80,7 +84,7 @@ export const ImperialLuxeReel = () => (
       <ReelClip src="videos/water-hides-diamonds-final-touch.mp4" duration={SCENE_3} fadeIn fadeOut zoomIn waterHighlight />
     </Sequence>
     <Sequence from={START_4} durationInFrames={SCENE_4}>
-      <ReelClip src="videos/I2V Камера плавно прибли_11-10_23_04_17.mp4" duration={SCENE_4} fadeIn fadeOut={false}>
+      <ReelClip src="videos/I2V Камера плавно прибли_11-10_23_04_17.mp4" duration={SCENE_4} fadeIn fadeOut={false} phoneFlash>
         <PhoneBreakingNews />
       </ReelClip>
     </Sequence>
