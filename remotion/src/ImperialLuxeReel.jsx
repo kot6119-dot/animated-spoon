@@ -128,6 +128,19 @@ export const ImperialLuxeReel = () => (
       <Audio src={staticFile("videos/imperial_luxe_phone_vibration_notification.mp3")} volume={0.90} />
     </Sequence>
 
+    {/* Background music: Pink Panther theme, lower under narration and slightly higher in scene two. */}
+    <Sequence from={0} durationInFrames={IMPERIAL_LUXE_REEL_DURATION}>
+      <Audio
+        src={staticFile("videos/imperial-luxe-pink-panther-27s.mp3")}
+        volume={(frame) => {
+          const level = frame >= SCENE_1 && frame < START_3 ? 0.40 : 0.28;
+          const fadeIn = interpolate(frame, [0, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          const fadeOut = interpolate(frame, [IMPERIAL_LUXE_REEL_DURATION - 36, IMPERIAL_LUXE_REEL_DURATION], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          return level * Math.min(fadeIn, fadeOut);
+        }}
+      />
+    </Sequence>
+
     {/* Narration: separate approved studio WAVs, aligned to scenes; SFX may overlap. */}
     <Sequence from={0} durationInFrames={SCENE_1}>
       <Audio src={staticFile("videos/studio-audio/sexy_official_cocky-studio.wav")} volume={1} />
