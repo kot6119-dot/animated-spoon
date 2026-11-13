@@ -1,0 +1,46 @@
+name: Audio Studio
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'audio-studio/**'
+      - 'SOUND_LIBRARY/**'
+      - '.github/workflows/audio-studio.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: audio-studio/requirements.txt
+
+      - name: Install audio system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libsox-dev libsndfile1-dev pkg-config
+
+      - name: Install cysox audio engine
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r audio-studio/requirements.txt
+
+      - name: Verify audio engine
+        run: |
+          python -c "import cysox; print('cysox imported successfully')"
+          python -m pip show cysox
+
+      - name: Scan sound library and current project audio
+        run: python audio-studio/audio_tool.py catalog
