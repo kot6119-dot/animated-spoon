@@ -1,16 +1,20 @@
 # VIDEO_LIBRARY
 
-Stock video clips downloaded from Pixabay through the official Pixabay API.
+A manually curated collection of stock-video links selected for the project.
 
-- Clips are stored here as MP4 files.
-- Each downloaded clip has a matching JSON metadata file with its Pixabay page, creator, and source.
-- Search requests are written to `.github/VIDEO_REQUEST.txt`.
-- The workflow is `.github/workflows/pixabay-video-download.yml`.
+## How this library works
 
-## API setup
+- No automatic downloading.
+- No API keys or repository secrets are required.
+- Describe the video you need in ChatGPT.
+- Suitable sources are searched manually, and direct page/download links are sent to you.
+- You choose which clip to download and add to this folder yourself.
 
-Add a repository Actions secret named `PIXABAY_API_KEY` containing the free API key from https://pixabay.com/api/docs/.
+## Sources to search
 
-The Pixabay API requires this key. Keep it in GitHub Actions Secrets; never commit it to the repository.
+- Internet Archive: https://archive.org/details/movies
+- Pexels Videos: https://www.pexels.com/videos/
+- Mixkit: https://mixkit.co/free-stock-video/
+- Coverr: https://coverr.co/
 
-Before publishing, check the individual clip page and Pixabay Content License restrictions, especially visible trademarks, logos, and recognizable people.
+Always check the individual clip's license and usage restrictions before publishing, especially for commercial use.
