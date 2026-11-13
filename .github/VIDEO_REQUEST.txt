@@ -1,5 +1,5 @@
 query=car driving on road
-orientation=vertical
-count=3
-min_width=720
-min_height=1280
+orientation=horizontal
+count=1
+min_width=1280
+min_height=720
