@@ -44,3 +44,14 @@ jobs:
 
       - name: Scan sound library and current project audio
         run: python audio-studio/audio_tool.py catalog
+
+      - name: Create studio-polished copy of approved narrator
+        run: python audio-studio/studio_voice.py
+
+      - name: Upload studio voice files
+        uses: actions/upload-artifact@v4
+        with:
+          name: imperial-luxe-studio-voice
+          path: AUDIO_OUTPUT/studio/*
+          if-no-files-found: error
+          retention-days: 14
