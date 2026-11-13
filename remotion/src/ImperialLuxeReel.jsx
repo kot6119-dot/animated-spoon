@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, OffthreadVideo, Sequence, interpolate, useCurrentFrame, staticFile } from "remotion";
+import { AbsoluteFill, Audio, OffthreadVideo, Sequence, interpolate, useCurrentFrame, staticFile } from "remotion";
 
 const TRANSITION = 12;
 const DIAMOND_TRANSITION = 15; // 0.5s soft dissolve, matching the Grok review
@@ -102,6 +102,24 @@ export const ImperialLuxeReel = () => (
       <ReelClip src="videos/I2V Камера плавно прибли_11-10_23_04_17.mp4" duration={SCENE_4} fadeIn fadeOut={false} fadeInFrames={PHONE_TRANSITION} phoneFlash videoFilter="brightness(0.80) contrast(1.03) saturate(0.94)">
         <PhoneBreakingNews />
       </ReelClip>
+    </Sequence>
+
+    {/* Effects pass: frame-accurate SFX. Voice and music are intentionally not added yet. */}
+    {/* Laser starts with the scan sweep: frame 5 = 00:00:00.167 at 30 fps. */}
+    <Sequence from={5}>
+      <Audio src={staticFile("videos/imperial_luxe_laser_scan_2s.wav")} volume={0.85} />
+    </Sequence>
+
+    {/* Combined diamonds-and-water effect begins with the diamonds scene transition:
+        frame 138 = 00:00:04.600 at 30 fps. */}
+    <Sequence from={START_2}>
+      <Audio src={staticFile("videos/imperial_luxe_water_and_diamonds_final.wav")} volume={0.78} />
+    </Sequence>
+
+    {/* Phone vibration + notification begins with the phone scene:
+        frame 594 = 00:00:19.800 at 30 fps. The audio file contains its own vibration/chime spacing. */}
+    <Sequence from={START_4}>
+      <Audio src={staticFile("videos/imperial_luxe_phone_vibration_notification.mp3")} volume={0.90} />
     </Sequence>
   </AbsoluteFill>
 );
