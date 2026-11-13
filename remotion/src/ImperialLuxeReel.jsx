@@ -13,6 +13,9 @@ const START_3 = START_2 + SCENE_2 - DIAMOND_TRANSITION;
 const START_4 = START_3 + SCENE_3 - PHONE_TRANSITION;
 // Sound effect timing: bottle is fully inverted and the first diamonds begin falling at 7.3s.
 const DIAMOND_SFX_START = 219; // 7.3s at 30 fps
+// End the combined diamonds/water effect exactly as scene three begins.
+const DIAMOND_SFX_DURATION = START_3 - DIAMOND_SFX_START; // 111 frames = 3.7s
+const DIAMOND_SFX_FADE_FRAMES = 12; // 0.4s smooth fade at the end
 export const IMPERIAL_LUXE_REEL_DURATION = START_4 + SCENE_4;
 
 const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, fadeInFrames = TRANSITION, fadeOutFrames = TRANSITION, zoomIn = false, zoomOut = false, waterHighlight = false, phoneFlash = false, diamondFlash = false, playbackRate = 1, slowStartFrame = null, slowPlaybackRate = 0.75, rushTailFrom = null, rushTailRate = 1.35, videoFilter = "none", diamondVignette = false, children }) => {
@@ -112,15 +115,15 @@ export const ImperialLuxeReel = () => (
       <Audio src={staticFile("videos/imperial_luxe_laser_scan_2s.wav")} volume={0.85} />
     </Sequence>
 
-    {/* Short water-and-diamonds effect starts only after the hand turns the bottle
-        and the first diamonds begin falling: frame 219 = 00:00:07.300 at 30 fps. */}
-    <Sequence from={DIAMOND_SFX_START}>
-      <Audio src={staticFile("videos/imperial_luxe_water_and_diamonds_final.wav")} volume={0.78} />
+    {/* Diamonds/water starts at 7.3s and is trimmed to stop at the start of scene three. */}
+    <Sequence from={DIAMOND_SFX_START} durationInFrames={DIAMOND_SFX_DURATION}>
+      <Audio
+        src={staticFile("videos/imperial_luxe_water_and_diamonds_final.wav")}
+        volume={(frame) => interpolate(frame, [0, DIAMOND_SFX_DURATION - DIAMOND_SFX_FADE_FRAMES, DIAMOND_SFX_DURATION], [0.78, 0.78, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}
+      />
     </Sequence>
 
-    {/* Phone effect starts as the screen first begins to light:
-        frame 594 = 00:00:19.800 at 30 fps. The source file plays vibration first,
-        then the notification chime after its built-in pause. */}
+    {/* Phone effect starts as the screen first begins to light: frame 594 = 19.8s. */}
     <Sequence from={START_4}>
       <Audio src={staticFile("videos/imperial_luxe_phone_vibration_notification.mp3")} volume={0.90} />
     </Sequence>
