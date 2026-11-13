@@ -8,10 +8,9 @@ SOURCE = ROOT / "remotion" / "public" / "videos" / "sexy_official_2.mp3"
 OUT = ROOT / "AUDIO_OUTPUT" / "wow"
 WAV = OUT / "sexy_official_2-WOW.wav"
 
-# A restrained cinematic treatment: slightly slower and lower, fuller low end,
+# A restrained cinematic treatment at the original duration and speed, with fuller low end,
 # a little presence, controlled dynamics. No reverb, chorus, or voice conversion.
 FILTERS = (
-    "asetrate=48000*0.985,aresample=48000,atempo=0.985,"
     "highpass=f=65,"
     "equalizer=f=125:t=q:w=0.8:g=1.2,"
     "equalizer=f=280:t=q:w=1.0:g=-0.8,"
