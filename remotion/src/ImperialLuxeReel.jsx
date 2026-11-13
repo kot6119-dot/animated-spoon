@@ -137,11 +137,12 @@ export const ImperialLuxeReel = () => (
       />
     </Sequence>
 
-    {/* Narration: approved studio WAVs for scenes one and three; scene four is left without narration. */}
+    {/* Narration: approved studio WAVs; the second narration continues briefly into the phone scene. */}
     <Sequence from={0} durationInFrames={SCENE_1}>
       <Audio src={staticFile("videos/studio-audio/sexy_official_cocky-studio.wav")} volume={1} />
     </Sequence>
-    <Sequence from={START_3} durationInFrames={SCENE_3}>
+    {/* Start the full second narration 48 frames earlier and let it finish over the opening of the phone scene. */}
+    <Sequence from={START_3 - 48} durationInFrames={330}>
       <Audio src={staticFile("videos/studio-audio/sexy_official_2-WOW.wav")} volume={1} />
     </Sequence>
   </AbsoluteFill>
