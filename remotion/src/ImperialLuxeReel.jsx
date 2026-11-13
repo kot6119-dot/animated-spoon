@@ -110,9 +110,9 @@ export const ImperialLuxeReel = () => (
       <Audio src={staticFile("videos/imperial_luxe_laser_scan_2s.wav")} volume={0.85} />
     </Sequence>
 
-    {/* Combined diamonds-and-water effect begins with the diamonds scene transition:
-        frame 138 = 00:00:04.600 at 30 fps. */}
-    <Sequence from={START_2}>
+    {/* Water-and-diamonds effect begins with the water scene:
+        frame 330 = 00:00:11.000 at 30 fps. */}
+    <Sequence from={START_3}>
       <Audio src={staticFile("videos/imperial_luxe_water_and_diamonds_final.wav")} volume={0.78} />
     </Sequence>
 
