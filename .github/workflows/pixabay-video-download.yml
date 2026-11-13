@@ -1,0 +1,107 @@
+name: Search and download stock videos with Pixabay
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/VIDEO_REQUEST.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  download-videos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Search Pixabay and download MP4 clips
+        env:
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${PIXABAY_API_KEY:-}" ]]; then
+            echo "::error::Add PIXABAY_API_KEY in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          QUERY="$(sed -n 's/^query=//p' .github/VIDEO_REQUEST.txt | head -n 1)"
+          ORIENTATION="$(sed -n 's/^orientation=//p' .github/VIDEO_REQUEST.txt | head -n 1)"
+          COUNT="$(sed -n 's/^count=//p' .github/VIDEO_REQUEST.txt | head -n 1)"
+          MIN_WIDTH="$(sed -n 's/^min_width=//p' .github/VIDEO_REQUEST.txt | head -n 1)"
+          MIN_HEIGHT="$(sed -n 's/^min_height=//p' .github/VIDEO_REQUEST.txt | head -n 1)"
+          [[ -n "$QUERY" ]] || { echo "::error::Missing query in VIDEO_REQUEST.txt"; exit 1; }
+          COUNT="${COUNT:-3}"
+          ORIENTATION="${ORIENTATION:-all}"
+          mkdir -p VIDEO_LIBRARY
+          export QUERY ORIENTATION COUNT MIN_WIDTH MIN_HEIGHT
+          node <<'NODE'
+          const fs = require('node:fs/promises');
+          const path = require('node:path');
+
+          async function main() {
+            const params = new URLSearchParams({
+              key: process.env.PIXABAY_API_KEY,
+              q: process.env.QUERY,
+              per_page: String(Math.min(20, Math.max(3, Number(process.env.COUNT) || 3))),
+              safesearch: 'true',
+              video_type: 'film',
+              order: 'popular'
+            });
+            if (process.env.ORIENTATION && process.env.ORIENTATION !== 'all') {
+              params.set('orientation', process.env.ORIENTATION);
+            }
+            if (process.env.MIN_WIDTH) params.set('min_width', process.env.MIN_WIDTH);
+            if (process.env.MIN_HEIGHT) params.set('min_height', process.env.MIN_HEIGHT);
+
+            const response = await fetch('https://pixabay.com/api/videos/?' + params);
+            const body = await response.text();
+            if (!response.ok) throw new Error('Pixabay API HTTP ' + response.status + ': ' + body.slice(0, 1200));
+            const data = JSON.parse(body);
+            const clips = (data.hits || []).filter(x => x.videos?.medium?.url).slice(0, Number(process.env.COUNT) || 3);
+            if (!clips.length) throw new Error('No suitable video clips found for: ' + process.env.QUERY);
+
+            for (const clip of clips) {
+              const title = String(clip.tags || 'pixabay-video').toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 55) || 'pixabay-video';
+              const base = 'pixabay-' + clip.id + '-' + title;
+              const videoUrl = clip.videos.medium.url;
+              const videoResponse = await fetch(videoUrl);
+              if (!videoResponse.ok) throw new Error('Video download failed for ' + clip.id + ': HTTP ' + videoResponse.status);
+              const bytes = Buffer.from(await videoResponse.arrayBuffer());
+              await fs.writeFile(path.join('VIDEO_LIBRARY', base + '.mp4'), bytes);
+              const metadata = {
+                source: 'Pixabay',
+                id: clip.id,
+                title: clip.tags || '',
+                creator: clip.user || '',
+                source_page: clip.pageURL,
+                width: clip.videos.medium.width,
+                height: clip.videos.medium.height,
+                downloaded_file: base + '.mp4',
+                license_reference: 'https://pixabay.com/service/license-summary/'
+              };
+              await fs.writeFile(path.join('VIDEO_LIBRARY', base + '.json'), JSON.stringify(metadata, null, 2) + '\n');
+              console.log('Downloaded ' + base + '.mp4 (' + bytes.length + ' bytes)');
+              console.log('Source: ' + clip.pageURL);
+            }
+          }
+          main().catch(error => { console.error('::error::' + error.message); process.exit(1); });
+          NODE
+
+      - name: Commit downloaded stock videos
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add VIDEO_LIBRARY/
+          if git diff --cached --quiet; then
+            echo "No new video files to commit."
+            exit 0
+          fi
+          git commit -m "Add stock videos from Pixabay"
+          git push
