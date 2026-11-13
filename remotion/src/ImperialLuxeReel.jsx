@@ -110,11 +110,6 @@ export const ImperialLuxeReel = () => (
     </Sequence>
 
     {/* Effects pass: frame-accurate SFX. Voice and music are intentionally not added yet. */}
-    {/* Laser starts with the scan sweep: frame 5 = 00:00:00.167 at 30 fps. */}
-    <Sequence from={5}>
-      <Audio src={staticFile("videos/imperial_luxe_laser_scan_2s.wav")} volume={0.85} />
-    </Sequence>
-
     {/* Diamonds/water starts at 7.3s and is trimmed to stop at the start of scene three. */}
     <Sequence from={DIAMOND_SFX_START} durationInFrames={DIAMOND_SFX_DURATION}>
       <Audio
@@ -141,15 +136,12 @@ export const ImperialLuxeReel = () => (
       />
     </Sequence>
 
-    {/* Narration: separate approved studio WAVs, aligned to scenes; SFX may overlap. */}
+    {/* Narration: approved studio WAVs for scenes one and three; scene four is left without narration. */}
     <Sequence from={0} durationInFrames={SCENE_1}>
       <Audio src={staticFile("videos/studio-audio/sexy_official_cocky-studio.wav")} volume={1} />
     </Sequence>
     <Sequence from={START_3} durationInFrames={SCENE_3}>
       <Audio src={staticFile("videos/studio-audio/sexy_official_2-WOW.wav")} volume={1} />
-    </Sequence>
-    <Sequence from={START_4} durationInFrames={SCENE_4}>
-      <Audio src={staticFile("videos/studio-audio/sexy_official_3-studio.wav")} volume={1} />
     </Sequence>
   </AbsoluteFill>
 );
