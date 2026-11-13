@@ -3,3 +3,4 @@ orientation=horizontal
 count=1
 min_width=1280
 min_height=720
+# Source: Internet Archive public API; no API key required.
