@@ -48,10 +48,15 @@ jobs:
       - name: Create studio-polished copy of approved narrator
         run: python audio-studio/studio_voice.py
 
+      - name: Create WOW studio copy of second narrator
+        run: python audio-studio/studio_voice_2.py
+
       - name: Upload studio voice files
         uses: actions/upload-artifact@v4
         with:
           name: imperial-luxe-studio-voice
-          path: AUDIO_OUTPUT/studio/*
+          path: |
+            AUDIO_OUTPUT/studio/*
+            AUDIO_OUTPUT/wow/*
           if-no-files-found: error
           retention-days: 14
