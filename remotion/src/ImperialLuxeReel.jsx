@@ -128,7 +128,8 @@ export const ImperialLuxeReel = () => (
       <Audio
         src={staticFile("videos/imperial-luxe-pink-panther-27s.mp3")}
         volume={(frame) => {
-          const level = frame >= SCENE_1 && frame < START_3 ? 0.30 : 0.20;
+          const voiceIsPlaying = frame < SCENE_1 || (frame >= START_3 && frame < START_3 + SCENE_3);
+          const level = voiceIsPlaying ? 0.20 : 0.30;
           const fadeIn = interpolate(frame, [0, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
           const fadeOut = interpolate(frame, [IMPERIAL_LUXE_REEL_DURATION - 36, IMPERIAL_LUXE_REEL_DURATION], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
           return level * Math.min(fadeIn, fadeOut);
