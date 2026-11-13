@@ -33,6 +33,11 @@ jobs:
       - name: Install Remotion browser
         run: npx remotion browser ensure
 
+      - name: Process voice experiment (sexy_official_2)
+        run: |
+          mkdir -p out
+          ffmpeg -y -i public/videos/sexy_official_2.mp3 -af "aresample=44100,asetrate=42777,aresample=44100,equalizer=f=140:t=q:w=1:g=1.2" -c:a libmp3lame -b:a 192k out/sexy_official_2-voice-test.mp3
+
       - name: Render first video (unchanged laser version)
         run: npm run render
 
@@ -48,7 +53,7 @@ jobs:
       - name: Render IMPERIAL LUXE vertical Instagram Reel (video only)
         run: npm run render-reel
 
-      - name: Upload rendered videos and animation
+      - name: Upload rendered videos, animation, and voice experiment
         uses: actions/upload-artifact@v4
         with:
           name: remotion-videos
@@ -58,4 +63,5 @@ jobs:
             remotion/out/water-hides-diamonds.mp4
             remotion/out/smartphone-notification.mp4
             remotion/out/imperial-luxe-reel-video-only.mp4
+            remotion/out/sexy_official_2-voice-test.mp3
           if-no-files-found: error
