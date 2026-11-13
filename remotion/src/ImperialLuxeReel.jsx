@@ -127,5 +127,16 @@ export const ImperialLuxeReel = () => (
     <Sequence from={START_4}>
       <Audio src={staticFile("videos/imperial_luxe_phone_vibration_notification.mp3")} volume={0.90} />
     </Sequence>
+
+    {/* Narration: separate approved studio WAVs, aligned to scenes; SFX may overlap. */}
+    <Sequence from={0} durationInFrames={SCENE_1}>
+      <Audio src={staticFile("videos/studio-audio/sexy_official_cocky-studio.wav")} volume={1} />
+    </Sequence>
+    <Sequence from={START_3} durationInFrames={SCENE_3}>
+      <Audio src={staticFile("videos/studio-audio/sexy_official_2-WOW.wav")} volume={1} />
+    </Sequence>
+    <Sequence from={START_4} durationInFrames={SCENE_4}>
+      <Audio src={staticFile("videos/studio-audio/sexy_official_3-studio.wav")} volume={1} />
+    </Sequence>
   </AbsoluteFill>
 );
