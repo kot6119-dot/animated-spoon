@@ -51,6 +51,9 @@ jobs:
       - name: Create WOW studio copy of second narrator
         run: python audio-studio/studio_voice_2.py
 
+      - name: Create studio copy of third narrator
+        run: python audio-studio/studio_voice_3.py
+
       - name: Upload studio voice files
         uses: actions/upload-artifact@v4
         with:
