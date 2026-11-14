@@ -1,2 +1,2 @@
-query=smartphone
-request_id=openpix-test-2026-11-11
+query=busy Moscow city street traffic cars street level wide road
+request_id=moscow-traffic-cat-driver-2026-11-14
