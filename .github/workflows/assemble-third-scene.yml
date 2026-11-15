@@ -1,0 +1,66 @@
+name: Assemble third scene
+
+on:
+  push:
+    paths:
+      - ".github/workflows/assemble-third-scene.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Trim long clip and append the full short clip
+        shell: bash
+        run: |
+          set -euo pipefail
+          long="remotion/public/videos/03-scena-tretya.mp4"
+          short="remotion/public/videos/03-scena-tretya-1.mp4"
+          output="remotion/public/videos/03-scena-tretya-assembled.mp4"
+
+          test -s "$long"
+          test -s "$short"
+
+          long_duration=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$long")
+          short_duration=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$short")
+          echo "Long source duration: $long_duration"
+          echo "Short source duration: $short_duration"
+          awk -v d="$long_duration" 'BEGIN { exit !(d >= 5.5) }'
+
+          short_has_audio=$(ffprobe -v error -select_streams a:0 -show_entries stream=index -of csv=p=0 "$short" || true)
+
+          if [ -n "$short_has_audio" ]; then
+            ffmpeg -y -i "$long" -i "$short" \
+              -filter_complex "[0:v:0]trim=start=0:duration=5.5,setpts=PTS-STARTPTS[v0];[1:v:0]setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[v];anullsrc=r=48000:cl=stereo:d=5.5[s0];[1:a:0]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS[a1];[s0][a1]concat=n=2:v=0:a=1[a]" \
+              -map "[v]" -map "[a]" -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 30 \
+              -c:a aac -b:a 192k -movflags +faststart "$output"
+          else
+            ffmpeg -y -i "$long" -i "$short" \
+              -filter_complex "[0:v:0]trim=start=0:duration=5.5,setpts=PTS-STARTPTS[v0];[1:v:0]setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[v]" \
+              -map "[v]" -an -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 30 \
+              -movflags +faststart "$output"
+          fi
+
+          test -s "$output"
+          echo "Output metadata:"
+          ffprobe -v error -show_entries format=duration,size:stream=codec_type,codec_name,width,height -of json "$output"
+
+          mv "$output" "$long"
+
+      - name: Commit the assembled third scene only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add remotion/public/videos/03-scena-tretya.mp4
+          git commit -m "Assemble third scene with full short insert"
+          git push
