@@ -41,13 +41,13 @@ jobs:
 
           if [ -n "$short_has_audio" ]; then
             ffmpeg -y -i "$long" -i "$short" \
-              -filter_complex "[0:v:0]trim=start=0:duration=5.5,setpts=PTS-STARTPTS[v0];[1:v:0]setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[v];anullsrc=r=48000:cl=stereo:d=5.5[s0];[1:a:0]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS[a1];[s0][a1]concat=n=2:v=0:a=1[a]" \
-              -map "[v]" -map "[a]" -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 30 \
+              -filter_complex "[0:v:0]trim=start=0:duration=5.5,setpts=PTS-STARTPTS,scale=1920:1080,setsar=1,fps=30[v0];[1:v:0]scale=1920:1080,setsar=1,fps=30,setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[v];anullsrc=r=48000:cl=stereo:d=5.5[s0];[1:a:0]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS[a1];[s0][a1]concat=n=2:v=0:a=1[a]" \
+              -map "[v]" -map "[a]" -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
               -c:a aac -b:a 192k -movflags +faststart "$output"
           else
             ffmpeg -y -i "$long" -i "$short" \
-              -filter_complex "[0:v:0]trim=start=0:duration=5.5,setpts=PTS-STARTPTS[v0];[1:v:0]setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[v]" \
-              -map "[v]" -an -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 30 \
+              -filter_complex "[0:v:0]trim=start=0:duration=5.5,setpts=PTS-STARTPTS,scale=1920:1080,setsar=1,fps=30[v0];[1:v:0]scale=1920:1080,setsar=1,fps=30,setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[v]" \
+              -map "[v]" -an -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
               -movflags +faststart "$output"
           fi
 
