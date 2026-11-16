@@ -1,9 +1,15 @@
 {
-  "request_id": "leather-car-seat-creak-preview-2026-11-16",
+  "request_id": "leather-car-seat-creak-preview-2026-11-16-v2",
   "category": "Effects",
-  "query": "leather car seat creaking squeaking upholstery movement sitting shifting in vehicle interior close up foley",
+  "query": "leather car seat creak leather upholstery squeak when shifting weight sitting down vehicle interior foley",
   "downloaded": false,
   "candidates": [
+    {
+      "title": "Rising Chair Creak 08",
+      "page_url": "https://sfxmint.com/sounds/chair-creak-08",
+      "mp3_url": "https://sfxmint.com/dl/chair-creak-08.mp3",
+      "license": "CC0"
+    },
     {
       "title": "Interior Muffled Car Alarm 07",
       "page_url": "https://sfxmint.com/sounds/car-alarm-07",
@@ -11,15 +17,9 @@
       "license": "CC0"
     },
     {
-      "title": "Wicker Chair Creak 10",
-      "page_url": "https://sfxmint.com/sounds/chair-creak-10",
-      "mp3_url": "https://sfxmint.com/dl/chair-creak-10.mp3",
-      "license": "CC0"
-    },
-    {
-      "title": "Squeaking Car Slowing To A Stop 04",
-      "page_url": "https://sfxmint.com/sounds/car-slowing-to-a-stop-04",
-      "mp3_url": "https://sfxmint.com/dl/car-slowing-to-a-stop-04.mp3",
+      "title": "Leather Bag Handle Creak",
+      "page_url": "https://sfxmint.com/sounds/leather-bag-handle-creak",
+      "mp3_url": "https://sfxmint.com/dl/growth-95b2b512d3bdc496bd9f52ac-part-1-v2.mp3",
       "license": "CC0"
     },
     {
@@ -29,16 +29,16 @@
       "license": "CC0"
     },
     {
-      "title": "Buckle Click Seat Belt 02",
-      "page_url": "https://sfxmint.com/sounds/seat-belt-02",
-      "mp3_url": "https://sfxmint.com/dl/seat-belt-02.mp3",
+      "title": "Heavy Armchair Set Down 05",
+      "page_url": "https://sfxmint.com/sounds/chair-settles-05",
+      "mp3_url": "https://sfxmint.com/dl/chair-settles-05.mp3",
       "license": "CC0"
     },
     {
-      "title": "Low Speed Brake Squeak",
-      "page_url": "https://sfxmint.com/sounds/low-speed-brake-squeak",
-      "mp3_url": "https://sfxmint.com/dl/growth-e19a739c3b4e6a79c7fbec87-retry.mp3",
+      "title": "Gust Driven Branch Creak 05",
+      "page_url": "https://sfxmint.com/sounds/branch-bends-05",
+      "mp3_url": "https://sfxmint.com/dl/branch-bends-05.mp3",
       "license": "CC0"
     }
   ]
-}\n
+}
