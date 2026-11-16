@@ -1,3 +1,3 @@
 category=Effects
-query=leather car seat creaking squeaking upholstery movement sitting shifting in vehicle interior close up foley
-request_id=leather-car-seat-creak-preview-2026-11-16
+query=leather car seat creak leather upholstery squeak when shifting weight sitting down vehicle interior foley
+request_id=leather-car-seat-creak-preview-2026-11-16-v2
