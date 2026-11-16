@@ -1,0 +1,46 @@
+name: Test Remotion 4.0.544 on first scene
+
+on:
+  push:
+    branches:
+      - test/remotion-4.0.544
+    paths:
+      - 'remotion/src/Root.jsx'
+      - 'remotion/package.json'
+      - '.github/workflows/test-first-scene-remotion.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  render-first-scene:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: remotion
+    steps:
+      - name: Check out test branch
+        uses: actions/checkout@v4
+        with:
+          ref: test/remotion-4.0.544
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Remotion browser
+        run: npx remotion browser ensure
+
+      - name: Render copied first-scene source as a separate test output
+        run: npm run render-first-scene-test
+
+      - name: Upload test render
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-scene-remotion-4.0.544-test
+          path: remotion/out/first-scene-remotion-4.0.544-test.mp4
+          if-no-files-found: error
