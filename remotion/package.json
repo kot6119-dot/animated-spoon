@@ -10,7 +10,7 @@
     "render-water": "remotion render src/index.jsx WaterHidesDiamonds out/water-hides-diamonds.mp4 --codec=h264",
     "render-smartphone": "remotion render src/index.jsx SmartphoneNotification out/smartphone-notification.mp4 --codec=h264",
     "render-reel": "remotion render src/index.jsx ImperialLuxeReel out/imperial-luxe-reel-video-only.mp4 --codec=h264",
-    "render-first-scene-test": "remotion render src/index.jsx FirstSceneVideoTest out/first-scene-remotion-4.0.544-test.mp4 --codec=h264"
+    "render-first-scene-test": "remotion render src/index.jsx FirstSceneVideoTest out/first-scene-lightning-remotion-4.0.544-test.mp4 --codec=h264"
   },
   "dependencies": {
     "@remotion/cli": "4.0.544",
