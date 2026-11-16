@@ -1,3 +1,3 @@
 category=Effects
-query=dried peas beans lentils pouring spilling scattering bouncing onto wooden table close up foley
-request_id=peas-beans-spilling-wood-table-preview-2026-11-12
+query=leather car seat creaking squeaking upholstery movement sitting shifting in vehicle interior close up foley
+request_id=leather-car-seat-creak-preview-2026-11-16
