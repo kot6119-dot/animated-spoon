@@ -69,7 +69,7 @@ jobs:
               downloaded: false,
               candidates
             };
-            await fs.writeFile('.github/SFXMINT_PREVIEW.json', JSON.stringify(preview, null, 2) + '\\n');
+            await fs.writeFile('.github/SFXMINT_PREVIEW.json', JSON.stringify(preview, null, 2) + '\n');
             console.log('Found ' + candidates.length + ' preview candidates. No audio files were downloaded.');
             for (const [i, x] of candidates.entries()) console.log((i + 1) + '. ' + x.title + ' | ' + x.page_url + ' | ' + x.mp3_url);
             if (!candidates.length) throw new Error('No previewable MP3 candidates found.');
