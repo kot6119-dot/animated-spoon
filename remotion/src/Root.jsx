@@ -251,8 +251,20 @@ const SmartphoneNotification = () => {
     </AbsoluteFill>
   );
 };
+
+const FirstSceneVideoTest = () => (
+  <AbsoluteFill style={{ backgroundColor: "#000" }}>
+    <OffthreadVideo
+      src={staticFile("videos/01-pervaya-scena-jaguar.mp4")}
+      muted
+      style={{ width: "100%", height: "100%", objectFit: "contain" }}
+    />
+  </AbsoluteFill>
+);
+
 export const RemotionRoot = () => (
   <>
+    <Composition id="FirstSceneVideoTest" component={FirstSceneVideoTest} durationInFrames={153} fps={30} width={1920} height={1080} />
     <Composition id="ImperialLuxeReel" component={ImperialLuxeReel} durationInFrames={IMPERIAL_LUXE_REEL_DURATION} fps={30} width={1080} height={1920} />
     <Composition id="BottleScanOnly" component={BottleScanOnly} durationInFrames={150} fps={30} width={1920} height={1080} />
     <Composition id="DiamondsPolish" component={DiamondsPolish} durationInFrames={180} fps={30} width={1920} height={1080} />
