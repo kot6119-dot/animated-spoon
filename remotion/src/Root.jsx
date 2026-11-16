@@ -252,13 +252,76 @@ const SmartphoneNotification = () => {
   );
 };
 
+
+const LightningStrike = () => {
+  const frame = useCurrentFrame();
+  const pulse = (start, peak, end) => {
+    if (frame < start || frame > end) return 0;
+    if (frame <= peak) return (frame - start) / Math.max(1, peak - start);
+    return (end - frame) / Math.max(1, end - peak);
+  };
+  const hit = Math.max(
+    pulse(18, 20, 25),
+    pulse(67, 69, 75),
+    pulse(116, 118, 125)
+  );
+  const secondary = Math.max(
+    pulse(22, 23, 26) * 0.7,
+    pulse(71, 72, 76) * 0.55,
+    pulse(120, 121, 126) * 0.65
+  );
+
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
+      <svg viewBox="0 0 1920 1080" preserveAspectRatio="none"
+        style={{ width: "100%", height: "100%" }}>
+        <defs>
+          <filter id="stormGlow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="18" />
+          </filter>
+          <filter id="boltGlow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="7" />
+          </filter>
+          <radialGradient id="stormFlash">
+            <stop offset="0%" stopColor="#d8eaff" stopOpacity="0.32" />
+            <stop offset="55%" stopColor="#8db8e8" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#315078" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <rect width="1920" height="1080" fill="#18283c" opacity={0.12 + hit * 0.12} />
+        <ellipse cx="1410" cy="180" rx="440" ry="310" fill="url(#stormFlash)" opacity={hit} />
+        <g opacity={hit}>
+          <path d="M1250 0 L1281 42 L1260 67 L1310 91 L1292 119 L1348 143 L1330 161 L1412 180"
+            fill="none" stroke="#9bcaff" strokeWidth="25" strokeLinejoin="bevel"
+            filter="url(#stormGlow)" />
+          <path d="M1250 0 L1281 42 L1260 67 L1310 91 L1292 119 L1348 143 L1330 161 L1412 180"
+            fill="none" stroke="#d9edff" strokeWidth="8" strokeLinejoin="bevel" />
+          <path d="M1308 91 L1360 79 L1381 102 L1402 96"
+            fill="none" stroke="#c7e3ff" strokeWidth="4" />
+          <path d="M1348 143 L1390 132 L1412 149 L1438 145"
+            fill="none" stroke="#ffffff" strokeWidth="3.5" />
+          <path d="M1278 42 L1235 57 L1218 83"
+            fill="none" stroke="#c7e3ff" strokeWidth="3" />
+        </g>
+        <g opacity={secondary}>
+          <path d="M1515 0 L1492 39 L1510 62 L1470 91 L1485 117 L1440 151 L1412 180"
+            fill="none" stroke="#b8d9ff" strokeWidth="17" filter="url(#boltGlow)" />
+          <path d="M1515 0 L1492 39 L1510 62 L1470 91 L1485 117 L1440 151 L1412 180"
+            fill="none" stroke="#eef7ff" strokeWidth="5" />
+        </g>
+      </svg>
+    </AbsoluteFill>
+  );
+};
+
 const FirstSceneVideoTest = () => (
   <AbsoluteFill style={{ backgroundColor: "#000" }}>
     <OffthreadVideo
       src={staticFile("videos/01-pervaya-scena-jaguar.mp4")}
       muted
-      style={{ width: "100%", height: "100%", objectFit: "contain" }}
+      style={{ width: "100%", height: "100%", objectFit: "contain", filter: "brightness(0.88) contrast(1.08) saturate(0.9)" }}
     />
+    <LightningStrike />
   </AbsoluteFill>
 );
 
