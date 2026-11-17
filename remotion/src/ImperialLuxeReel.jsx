@@ -18,7 +18,7 @@ const DIAMOND_SFX_DURATION = START_3 - DIAMOND_SFX_START; // 111 frames = 3.7s
 const DIAMOND_SFX_FADE_FRAMES = 12; // 0.4s smooth fade at the end
 export const IMPERIAL_LUXE_REEL_DURATION = START_4 + SCENE_4;
 
-const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, fadeInFrames = TRANSITION, fadeOutFrames = TRANSITION, zoomIn = false, zoomOut = false, waterHighlight = false, phoneFlash = false, diamondFlash = false, playbackRate = 1, slowStartFrame = null, slowPlaybackRate = 0.75, rushTailFrom = null, rushTailRate = 1.35, videoFilter = "none", diamondVignette = false, children }) => {
+const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, fadeInFrames = TRANSITION, fadeOutFrames = TRANSITION, zoomIn = false, zoomOut = false, waterHighlight = false, phoneFlash = false, diamondFlash = false, playbackRate = 1, slowStartFrame = null, slowPlaybackRate = 0.75, rushTailFrom = null, rushTailRate = 1.35, videoFilter = "none", diamondVignette = false, muted = true, children }) => {
   const frame = useCurrentFrame();
   const fadeInOpacity = fadeIn
     ? interpolate(frame, [0, fadeInFrames], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
@@ -44,7 +44,7 @@ const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, fadeInFrames =
       {rushTailFrom !== null ? (
         <>
           <Sequence from={0} durationInFrames={rushTailFrom}>
-            <OffthreadVideo src={staticFile(src)} muted startFrom={0} endAt={rushTailFrom} style={{ width: "100%", height: "100%", objectFit: "cover", filter: videoFilter }} />
+            <OffthreadVideo src={staticFile(src)} muted={muted} startFrom={0} endAt={rushTailFrom} style={{ width: "100%", height: "100%", objectFit: "cover", filter: videoFilter }} />
           </Sequence>
           <Sequence from={rushTailFrom} durationInFrames={duration - rushTailFrom}>
             <OffthreadVideo src={staticFile(src)} muted startFrom={rushTailFrom} endAt={300} playbackRate={rushTailRate} style={{ width: "100%", height: "100%", objectFit: "cover", filter: videoFilter }} />
@@ -95,55 +95,23 @@ const PhoneBreakingNews = () => (
 export const ImperialLuxeReel = () => (
   <AbsoluteFill style={{ backgroundColor: "#050505", overflow: "hidden" }}>
     <Sequence from={0} durationInFrames={SCENE_1}>
-      <ReelClip src="videos/01-bottle-scan.mp4" duration={SCENE_1} fadeIn={false} fadeOut />
+      <ReelClip src="videos/01-pervaya-scena-jaguar.mp4" duration={SCENE_1} fadeIn={false} fadeOut />
+      <Audio src={staticFile("videos/Сцена первая.m4a")} volume={1} />
     </Sequence>
     <Sequence from={START_2} durationInFrames={SCENE_2}>
-      <ReelClip src="videos/02-diamonds-spill.mov" duration={SCENE_2} fadeIn fadeOut fadeOutFrames={DIAMOND_TRANSITION} zoomOut slowStartFrame={99} slowPlaybackRate={0.75} videoFilter="brightness(1.07) contrast(1.12) saturate(1.08) sepia(0.035)" diamondVignette diamondFlash />
+      <ReelClip src="videos/02-vtoraya-scena-kot-v-jaguar.mp4" duration={SCENE_2} fadeIn fadeOut fadeOutFrames={DIAMOND_TRANSITION} zoomOut />
+      <Audio src={staticFile("videos/Сцена вторая.mp3")} volume={1} />
     </Sequence>
     <Sequence from={START_3} durationInFrames={SCENE_3}>
-      <ReelClip src="videos/water-hides-diamonds-final-touch.mp4" duration={SCENE_3} fadeIn fadeOut fadeInFrames={DIAMOND_TRANSITION} fadeOutFrames={PHONE_TRANSITION} zoomIn waterHighlight rushTailFrom={225} rushTailRate={1.35} />
+      <ReelClip src="videos/03-scena-tretya.mp4" duration={SCENE_3} fadeIn fadeOut fadeInFrames={DIAMOND_TRANSITION} fadeOutFrames={PHONE_TRANSITION} />
+      <Audio src={staticFile("videos/Сцена третья аудио.mp3")} volume={1} />
     </Sequence>
     <Sequence from={START_4} durationInFrames={SCENE_4}>
-      <ReelClip src="videos/I2V Камера плавно прибли_11-10_23_04_17.mp4" duration={SCENE_4} fadeIn fadeOut={false} fadeInFrames={PHONE_TRANSITION} phoneFlash videoFilter="brightness(0.80) contrast(1.03) saturate(0.94)">
+      <ReelClip src="videos/04-chetvertaya-scena-s-muzykoy.mp4" duration={SCENE_4} fadeIn fadeOut={false} fadeInFrames={PHONE_TRANSITION} muted={false}>
         <PhoneBreakingNews />
       </ReelClip>
     </Sequence>
 
-    {/* Effects pass: frame-accurate SFX. Voice and music are intentionally not added yet. */}
-    {/* Diamonds/water starts at 7.3s and is trimmed to stop at the start of scene three. */}
-    <Sequence from={DIAMOND_SFX_START} durationInFrames={DIAMOND_SFX_DURATION}>
-      <Audio
-        src={staticFile("videos/imperial_luxe_water_and_diamonds_final.wav")}
-        volume={(frame) => interpolate(frame, [0, DIAMOND_SFX_DURATION - DIAMOND_SFX_FADE_FRAMES, DIAMOND_SFX_DURATION], [0.78, 0.78, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}
-      />
-    </Sequence>
-
-    {/* Phone effect starts as the screen first begins to light: frame 594 = 19.8s. */}
-    <Sequence from={START_4}>
-      <Audio src={staticFile("videos/imperial_luxe_phone_vibration_notification.mp3")} volume={0.90} />
-    </Sequence>
-
-    {/* Background music: Pink Panther theme, lower under narration and slightly higher in scene two. */}
-    <Sequence from={0} durationInFrames={IMPERIAL_LUXE_REEL_DURATION}>
-      <Audio
-        src={staticFile("videos/imperial-luxe-pink-panther-27s.mp3")}
-        volume={(frame) => {
-          const voiceIsPlaying = frame < SCENE_1 || (frame >= START_3 && frame < START_3 + SCENE_3);
-          const level = voiceIsPlaying ? 0.20 : 0.30;
-          const fadeIn = interpolate(frame, [0, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-          const fadeOut = interpolate(frame, [IMPERIAL_LUXE_REEL_DURATION - 36, IMPERIAL_LUXE_REEL_DURATION], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-          return level * Math.min(fadeIn, fadeOut);
-        }}
-      />
-    </Sequence>
-
-    {/* Narration: approved studio WAVs; the second narration continues briefly into the phone scene. */}
-    <Sequence from={0} durationInFrames={SCENE_1}>
-      <Audio src={staticFile("videos/studio-audio/sexy_official_cocky-studio.wav")} volume={1} />
-    </Sequence>
-    {/* Start the full second narration 48 frames earlier and let it finish over the opening of the phone scene. */}
-    <Sequence from={START_3 - 48} durationInFrames={330}>
-      <Audio src={staticFile("videos/studio-audio/sexy_official_2-WOW.wav")} volume={1} />
-    </Sequence>
+    {/* The fourth source clip already contains its own music. No extra track is added. */}
   </AbsoluteFill>
 );
