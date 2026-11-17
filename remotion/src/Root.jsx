@@ -5,6 +5,7 @@ import {
   Audio,
   Composition,
   OffthreadVideo,
+  Sequence,
   Img,
   interpolate,
   useCurrentFrame,
@@ -340,11 +341,18 @@ const ThirdSceneCatMusicTest = () => {
         src={staticFile("videos/03-scena-tretya.mp4")}
         style={{ width: "100%", height: "100%", objectFit: "contain" }}
       />
+      {/* First play: fade out during the 0.4s overlap. */}
       <Audio
         src={staticFile("videos/Сцена вторая.mp3")}
-        loop
-        volume={musicVolume}
+        volume={(f) => musicVolume * (f < 139 ? 1 : interpolate(f, [139, 151], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }))}
       />
+      {/* Second play starts 0.4s before the first ends, with a matching fade-in. */}
+      <Sequence from={139} durationInFrames={130}>
+        <Audio
+          src={staticFile("videos/Сцена вторая.mp3")}
+          volume={(f) => musicVolume * interpolate(f, [0, 12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}
+        />
+      </Sequence>
     </AbsoluteFill>
   );
 };
