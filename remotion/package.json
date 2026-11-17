@@ -1,12 +1,11 @@
 {
-  "name": "imperial-luxe-reel",
-  "version": "2.0.0",
+  "name": "remotion-studio",
+  "version": "3.0.0",
   "private": true,
-  "description": "Clean four-scene Imperial Luxe vertical reel",
+  "description": "Clean vertical Remotion studio starter",
   "scripts": {
     "studio": "remotion studio src/index.jsx",
-    "prepare-scenes": "node scripts/prepare-scenes.mjs",
-    "render-reel": "remotion render src/index.jsx ImperialLuxeReel out/imperial-luxe-reel-video-only.mp4 --codec=h264"
+    "render": "remotion render src/index.jsx Main out/final-video.mp4 --codec=h264"
   },
   "dependencies": {
     "@remotion/cli": "4.0.544",
