@@ -71,6 +71,28 @@ const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, fadeInFrames =
   );
 };
 
+
+const GoldTransition = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, 23], [-0.35, 1.35], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const opacity = interpolate(frame, [0, 4, 18, 23], [0, 0.9, 0.72, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none", opacity, overflow: "hidden" }}>
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(112deg, transparent 0%, rgba(196,151,76,0.04) 38%, rgba(255,235,185,0.72) 49%, rgba(173,125,48,0.22) 53%, transparent 66%)",
+        transform: `translateX(${progress * 115 - 35}%)`,
+        mixBlendMode: "screen"
+      }} />
+      <div style={{
+        position: "absolute", top: 0, bottom: 0, width: "2px", left: `${progress * 130 - 15}%`,
+        background: "linear-gradient(180deg, transparent, rgba(255,239,194,0.95), rgba(190,143,67,0.7), transparent)",
+        boxShadow: "0 0 24px 8px rgba(226,184,111,0.42)"
+      }} />
+    </AbsoluteFill>
+  );
+};
+
 const PhoneBreakingNews = () => (
   <div style={{
     position: "absolute", left: "22%", top: "29%", width: "56%", boxSizing: "border-box",
@@ -112,6 +134,10 @@ export const ImperialLuxeReel = () => (
       </ReelClip>
     </Sequence>
 
+    {/* Restrained black-and-gold light sweeps bridge each scene without changing source clips. */}
+    <Sequence from={START_2} durationInFrames={24}><GoldTransition /></Sequence>
+    <Sequence from={START_3} durationInFrames={24}><GoldTransition /></Sequence>
+    <Sequence from={START_4} durationInFrames={24}><GoldTransition /></Sequence>
     {/* The fourth source clip already contains its own music. No extra track is added. */}
   </AbsoluteFill>
 );
