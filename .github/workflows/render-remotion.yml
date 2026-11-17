@@ -1,13 +1,18 @@
-name: Render clean Imperial Luxe reel
+name: Render new Remotion video
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'remotion/**'
-      - '.github/workflows/render-remotion.yml'
+    inputs:
+      composition_id:
+        description: "Remotion composition ID"
+        required: true
+        default: "Main"
+        type: string
+      output_name:
+        description: "Output file name without extension"
+        required: true
+        default: "final-video"
+        type: string
 
 permissions:
   contents: read
@@ -30,30 +35,35 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Confirm Remotion versions
+        run: |
+          npm ls remotion @remotion/cli
+          node -e "const r=require('remotion/package.json').version; const c=require('@remotion/cli/package.json').version; if(r !== '4.0.544' || c !== '4.0.544') process.exit(1); console.log('Remotion and CLI:', r)"
+
       - name: Install Remotion browser
         run: npx remotion browser ensure
 
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Read exact source video durations
-        run: npm run prepare-scenes
+      - name: List available compositions
+        run: npx remotion compositions src/index.jsx
 
-      - name: Render the clean four-scene reel
-        run: npm run render-reel
+      - name: Render selected composition
+        run: npx remotion render src/index.jsx "${{ inputs.composition_id }}" "out/${{ inputs.output_name }}-video-only.mp4" --codec=h264
 
       - name: Export iPhone-ready MP4 (H.264 Main, 1080x1920, AAC)
         run: |
-          ffmpeg -y -i out/imperial-luxe-reel-video-only.mp4 \
+          ffmpeg -y -i "out/${{ inputs.output_name }}-video-only.mp4" \
             -map 0:v:0 -map 0:a:0? \
             -vf "scale=1080:1920:flags=lanczos,setsar=1,fps=30,format=yuv420p" \
             -c:v libx264 -profile:v main -level:v 4.0 -preset medium -crf 18 \
             -c:a aac -b:a 192k -ar 48000 -ac 2 \
-            -movflags +faststart out/imperial-luxe-iPhone-compatible.mp4
+            -movflags +faststart "out/${{ inputs.output_name }}-iPhone-compatible.mp4"
 
       - name: Upload final iPhone-compatible video
         uses: actions/upload-artifact@v4
         with:
-          name: imperial-luxe-iphone-final
-          path: remotion/out/imperial-luxe-iPhone-compatible.mp4
+          name: ${{ inputs.output_name }}-iphone-final
+          path: remotion/out/${{ inputs.output_name }}-iPhone-compatible.mp4
           if-no-files-found: error
