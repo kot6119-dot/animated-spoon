@@ -1,0 +1,42 @@
+name: Copy approved cat video into public videos
+
+on:
+  push:
+    paths:
+      - ".github/workflows/copy-approved-cat-video.yml"
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  copy-video:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Download the already approved artifact from its original run
+        uses: actions/download-artifact@v4
+        with:
+          name: third-scene-cat-music-remotion-4.0.544-test
+          repository: kot6119-dot/animated-spoon
+          run-id: 44040217791
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/approved-cat-video
+      - name: Copy the MP4 into remotion/public/videos
+        run: |
+          set -euo pipefail
+          source_file="$(find /tmp/approved-cat-video -type f -name '*.mp4' -print -quit)"
+          test -n "$source_file"
+          mkdir -p remotion/public/videos
+          cp "$source_file" remotion/public/videos/04-chetvertaya-scena-s-muzykoy.mp4
+      - name: Commit the copied video
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add remotion/public/videos/04-chetvertaya-scena-s-muzykoy.mp4
+          git commit -m "Add approved cat video to public videos"
+          git push origin HEAD:main
