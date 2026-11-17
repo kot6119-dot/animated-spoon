@@ -319,11 +319,20 @@ const LightningStrike = () => {
 const ThirdSceneCatMusicTest = () => {
   const frame = useCurrentFrame();
   const seconds = frame / 30;
-  const musicVolume = seconds < 5.4
+
+  // The original scene audio is quiet until 5.53s, then the cat speaks
+  // through approximately 8.78s. Keep music at 60% under the voice,
+  // then restore its normal level. The music loops, but the composition
+  // duration remains tied to the original picture (269 frames / 8.967s).
+  const musicVolume = seconds < 5.48
     ? 1
-    : seconds < 5.6
-      ? interpolate(seconds, [5.4, 5.6], [1, 0.6], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
-      : 0.6;
+    : seconds < 5.58
+      ? interpolate(seconds, [5.48, 5.58], [1, 0.6], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+      : seconds < 8.72
+        ? 0.6
+        : seconds < 8.82
+          ? interpolate(seconds, [8.72, 8.82], [0.6, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+          : 1;
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
@@ -333,6 +342,7 @@ const ThirdSceneCatMusicTest = () => {
       />
       <Audio
         src={staticFile("videos/Сцена вторая.mp3")}
+        loop
         volume={musicVolume}
       />
     </AbsoluteFill>
@@ -352,7 +362,7 @@ const FirstSceneVideoTest = () => (
 
 export const RemotionRoot = () => (
   <>
-    <Composition id="ThirdSceneCatMusicTest" component={ThirdSceneCatMusicTest} durationInFrames={270} fps={30} width={1920} height={1080} />
+    <Composition id="ThirdSceneCatMusicTest" component={ThirdSceneCatMusicTest} durationInFrames={269} fps={30} width={1920} height={1080} />
     <Composition id="FirstSceneVideoTest" component={FirstSceneVideoTest} durationInFrames={153} fps={30} width={1920} height={1080} />
     <Composition id="ImperialLuxeReel" component={ImperialLuxeReel} durationInFrames={IMPERIAL_LUXE_REEL_DURATION} fps={30} width={1080} height={1920} />
     <Composition id="BottleScanOnly" component={BottleScanOnly} durationInFrames={150} fps={30} width={1920} height={1080} />
