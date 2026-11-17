@@ -1,4 +1,4 @@
-name: Render Remotion videos
+name: Render clean Imperial Luxe reel
 
 on:
   workflow_dispatch:
@@ -36,21 +36,24 @@ jobs:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Render IMPERIAL LUXE vertical Instagram Reel (video and audio)
+      - name: Read exact source video durations
+        run: npm run prepare-scenes
+
+      - name: Render the clean four-scene reel
         run: npm run render-reel
 
-      - name: Export Instagram-ready MP4 (H.264 Main, 1080x1920, 30fps, AAC)
+      - name: Export iPhone-ready MP4 (H.264 Main, 1080x1920, AAC)
         run: |
           ffmpeg -y -i out/imperial-luxe-reel-video-only.mp4 \
             -map 0:v:0 -map 0:a:0? \
             -vf "scale=1080:1920:flags=lanczos,setsar=1,fps=30,format=yuv420p" \
             -c:v libx264 -profile:v main -level:v 4.0 -preset medium -crf 18 \
             -c:a aac -b:a 192k -ar 48000 -ac 2 \
-            -movflags +faststart out/imperial-luxe-instagram-final.mp4
+            -movflags +faststart out/imperial-luxe-iPhone-compatible.mp4
 
-      - name: Upload final IMPERIAL LUXE video
+      - name: Upload final iPhone-compatible video
         uses: actions/upload-artifact@v4
         with:
-          name: imperial-luxe-final
-          path: remotion/out/imperial-luxe-instagram-final.mp4
+          name: imperial-luxe-iphone-final
+          path: remotion/out/imperial-luxe-iPhone-compatible.mp4
           if-no-files-found: error
