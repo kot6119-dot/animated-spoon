@@ -1,6 +1,12 @@
-# Remotion workspace
+# Remotion Studio
 
-This is a standalone Remotion project. It is separate from the existing Browser Lab application.
+Clean vertical video workspace.
+
+- Remotion and @remotion/cli are pinned to 4.0.544.
+- React and React DOM are pinned to 18.3.1.
+- Starter composition: Main, 1080x1920, 30 fps, 10 seconds.
+- Source media belongs in public/ only when needed for a new project.
+- No previous Jaguar or diamond-bottle media is part of this workspace.
 
 ## Local commands
 
@@ -11,10 +17,4 @@ npm run studio
 npm run render
 ```
 
-The starter composition is named `Main` and renders 1920x1080 at 30 fps for 10 seconds.
-
-## GitHub Actions
-
-Use the **Render Remotion video** workflow from the Actions tab. The rendered MP4 is uploaded as a workflow artifact.
-
-Source video files can later be placed in `public/` and imported with Remotion's `staticFile()`.
+The GitHub Actions workflow can render the selected composition and export an iPhone-compatible MP4 (H.264 Main, 1080x1920, AAC).
