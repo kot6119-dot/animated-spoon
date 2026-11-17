@@ -1,14 +1,11 @@
 {
-  "name": "animated-spoon-remotion",
-  "version": "1.0.0",
+  "name": "imperial-luxe-reel",
+  "version": "2.0.0",
   "private": true,
-  "description": "Standalone Remotion video workspace",
+  "description": "Clean four-scene Imperial Luxe vertical reel",
   "scripts": {
     "studio": "remotion studio src/index.jsx",
-    "render": "remotion render src/index.jsx BottleScanOnly out/bottle-film.mp4 --codec=h264",
-    "render-diamonds": "remotion render src/index.jsx DiamondsPolish out/diamonds-polished.mov --codec=h264",
-    "render-water": "remotion render src/index.jsx WaterHidesDiamonds out/water-hides-diamonds.mp4 --codec=h264",
-    "render-smartphone": "remotion render src/index.jsx SmartphoneNotification out/smartphone-notification.mp4 --codec=h264",
+    "prepare-scenes": "node scripts/prepare-scenes.mjs",
     "render-reel": "remotion render src/index.jsx ImperialLuxeReel out/imperial-luxe-reel-video-only.mp4 --codec=h264"
   },
   "dependencies": {
