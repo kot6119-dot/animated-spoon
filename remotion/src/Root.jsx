@@ -2,6 +2,7 @@ import { ImperialLuxeReel, IMPERIAL_LUXE_REEL_DURATION } from "./ImperialLuxeRee
 import React from "react";
 import {
   AbsoluteFill,
+  Audio,
   Composition,
   OffthreadVideo,
   Img,
@@ -314,6 +315,30 @@ const LightningStrike = () => {
   );
 };
 
+
+const ThirdSceneCatMusicTest = () => {
+  const frame = useCurrentFrame();
+  const seconds = frame / 30;
+  const musicVolume = seconds < 5.4
+    ? 1
+    : seconds < 5.6
+      ? interpolate(seconds, [5.4, 5.6], [1, 0.6], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+      : 0.6;
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#000" }}>
+      <OffthreadVideo
+        src={staticFile("videos/03-scena-tretya.mp4")}
+        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+      />
+      <Audio
+        src={staticFile("videos/Сцена вторая.mp3")}
+        volume={musicVolume}
+      />
+    </AbsoluteFill>
+  );
+};
+
 const FirstSceneVideoTest = () => (
   <AbsoluteFill style={{ backgroundColor: "#000" }}>
     <OffthreadVideo
@@ -327,6 +352,7 @@ const FirstSceneVideoTest = () => (
 
 export const RemotionRoot = () => (
   <>
+    <Composition id="ThirdSceneCatMusicTest" component={ThirdSceneCatMusicTest} durationInFrames={270} fps={30} width={1920} height={1080} />
     <Composition id="FirstSceneVideoTest" component={FirstSceneVideoTest} durationInFrames={153} fps={30} width={1920} height={1080} />
     <Composition id="ImperialLuxeReel" component={ImperialLuxeReel} durationInFrames={IMPERIAL_LUXE_REEL_DURATION} fps={30} width={1080} height={1920} />
     <Composition id="BottleScanOnly" component={BottleScanOnly} durationInFrames={150} fps={30} width={1920} height={1080} />

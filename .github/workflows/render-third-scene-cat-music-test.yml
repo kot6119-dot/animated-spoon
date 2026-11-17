@@ -1,0 +1,38 @@
+name: Render third scene cat music test
+
+on:
+  push:
+    branches:
+      - test/remotion-4.0.544
+    paths:
+      - 'remotion/src/Root.jsx'
+      - 'remotion/package.json'
+      - 'remotion/public/videos/03-scena-tretya.mp4'
+      - 'remotion/public/videos/Сцена вторая.mp3'
+      - '.github/workflows/render-third-scene-cat-music-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: remotion
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: test/remotion-4.0.544
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npx remotion browser ensure
+      - name: Render Remotion composition with music audio layer
+        run: npm run render-third-scene-cat-music-test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: third-scene-cat-music-remotion-4.0.544-test
+          path: remotion/out/third-scene-cat-music-remotion-test.mp4
+          if-no-files-found: error
