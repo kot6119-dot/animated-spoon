@@ -36,23 +36,6 @@ jobs:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Process voice experiment (sexy_official_2)
-        run: |
-          mkdir -p out
-          ffmpeg -y -i public/videos/sexy_official_2.mp3 -af "aresample=44100,asetrate=42777,aresample=44100,equalizer=f=140:t=q:w=1:g=1.2" -c:a libmp3lame -b:a 192k out/sexy_official_2-voice-test.mp3
-
-      - name: Render first video (unchanged laser version)
-        run: npm run render
-
-      - name: Render second video (diamonds polish)
-        run: npm run render-diamonds
-
-      - name: Render third animation (water hides diamonds)
-        run: npm run render-water
-
-      - name: Render fourth scene (smartphone breaking news)
-        run: npm run render-smartphone
-
       - name: Render IMPERIAL LUXE vertical Instagram Reel (video and audio)
         run: npm run render-reel
 
@@ -65,16 +48,9 @@ jobs:
             -c:a aac -b:a 192k -ar 48000 -ac 2 \
             -movflags +faststart out/imperial-luxe-instagram-final.mp4
 
-      - name: Upload rendered videos, animation, and voice experiment
+      - name: Upload final IMPERIAL LUXE video
         uses: actions/upload-artifact@v4
         with:
-          name: remotion-videos
-          path: |
-            remotion/out/bottle-film.mp4
-            remotion/out/diamonds-polished.mov
-            remotion/out/water-hides-diamonds.mp4
-            remotion/out/smartphone-notification.mp4
-            remotion/out/imperial-luxe-reel-video-only.mp4
-            remotion/out/imperial-luxe-instagram-final.mp4
-            remotion/out/sexy_official_2-voice-test.mp3
+          name: imperial-luxe-final
+          path: remotion/out/imperial-luxe-instagram-final.mp4
           if-no-files-found: error
