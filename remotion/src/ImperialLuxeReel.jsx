@@ -52,9 +52,9 @@ const GoldTransition = () => {
   );
 };
 
-const Scene = ({ scene }) => {
+const Scene = ({ scene, isFirst, isLast }) => {
   const frame = useCurrentFrame();
-  const fadeIn = interpolate(frame, [0, TRANSITION_FRAMES], [0, 1], {
+  const fadeIn = isFirst ? 1 : interpolate(frame, [0, TRANSITION_FRAMES], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -84,7 +84,7 @@ export const ImperialLuxeReel = () => (
         from={starts[index]}
         durationInFrames={scene.frames}
       >
-        <Scene scene={scene} />
+        <Scene scene={scene} isFirst={index === 0} isLast={index === scenes.length - 1} />
       </Sequence>
     ))}
     {starts.slice(1).map((start, index) => (
