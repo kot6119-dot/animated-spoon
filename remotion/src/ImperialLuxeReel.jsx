@@ -35,7 +35,7 @@ const Scene = ({ scene }) => (
       src={staticFile(scene.video)}
       muted={!scene.embeddedAudio}
       trimBefore={scene.trimBefore || 0}
-      trimAfter={scene.trimAfter || 0}
+      trimAfter={scene.frames - (scene.trimAfter || 0)}
       style={{ width: "100%", height: "100%", objectFit: "cover" }}
     />
     {scene.audio && (
