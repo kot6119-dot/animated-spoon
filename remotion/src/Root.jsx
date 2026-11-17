@@ -1,12 +1,15 @@
 import React from "react";
-import { Composition } from "remotion";
-import { ImperialLuxeReel, IMPERIAL_LUXE_REEL_DURATION } from "./ImperialLuxeReel";
+import { AbsoluteFill, Composition } from "remotion";
+
+const Main = () => (
+  <AbsoluteFill style={{ backgroundColor: "#050505" }} />
+);
 
 export const RemotionRoot = () => (
   <Composition
-    id="ImperialLuxeReel"
-    component={ImperialLuxeReel}
-    durationInFrames={IMPERIAL_LUXE_REEL_DURATION}
+    id="Main"
+    component={Main}
+    durationInFrames={300}
     fps={30}
     width={1080}
     height={1920}
