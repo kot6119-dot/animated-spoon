@@ -1,143 +1,96 @@
 import React from "react";
-import { AbsoluteFill, Audio, OffthreadVideo, Sequence, interpolate, useCurrentFrame, staticFile } from "remotion";
+import {
+  AbsoluteFill,
+  Audio,
+  OffthreadVideo,
+  Sequence,
+  interpolate,
+  staticFile,
+  useCurrentFrame,
+} from "remotion";
+import sceneDurations from "./scene-durations.json";
 
-const TRANSITION = 12;
-const DIAMOND_TRANSITION = 15; // 0.5s soft dissolve, matching the Grok review
-const PHONE_TRANSITION = 17; // ~0.57s soft dissolve into the phone
-const SCENE_1 = 150;
-const SCENE_2 = 207; // 99 frames normal, then the diamond spill slowed to 0.75x
-const SCENE_3 = 281; // the final water movement is slightly accelerated
-const SCENE_4 = 210;
-const START_2 = SCENE_1 - TRANSITION;
-const START_3 = START_2 + SCENE_2 - DIAMOND_TRANSITION;
-const START_4 = START_3 + SCENE_3 - PHONE_TRANSITION;
-// Sound effect timing: bottle is fully inverted and the first diamonds begin falling at 7.3s.
-const DIAMOND_SFX_START = 219; // 7.3s at 30 fps
-// End the combined diamonds/water effect exactly as scene three begins.
-const DIAMOND_SFX_DURATION = START_3 - DIAMOND_SFX_START; // 111 frames = 3.7s
-const DIAMOND_SFX_FADE_FRAMES = 12; // 0.4s smooth fade at the end
-export const IMPERIAL_LUXE_REEL_DURATION = START_4 + SCENE_4;
+const FPS = 30;
+const TRANSITION_FRAMES = 24;
+const scenes = [
+  { video: "videos/01-pervaya-scena-jaguar.mp4", audio: "videos/Сцена первая.m4a", frames: sceneDurations.scene1 },
+  { video: "videos/02-vtoraya-scena-kot-v-jaguar.mp4", audio: "videos/Сцена вторая.mp3", frames: sceneDurations.scene2 },
+  { video: "videos/03-scena-tretya.mp4", audio: "videos/Сцена третья аудио.mp3", frames: sceneDurations.scene3 },
+  { video: "videos/04-chetvertaya-scena-s-muzykoy.mp4", frames: sceneDurations.scene4, embeddedAudio: true },
+];
 
-const ReelClip = ({ src, duration, fadeIn = true, fadeOut = true, fadeInFrames = TRANSITION, fadeOutFrames = TRANSITION, zoomIn = false, zoomOut = false, waterHighlight = false, phoneFlash = false, diamondFlash = false, playbackRate = 1, slowStartFrame = null, slowPlaybackRate = 0.75, rushTailFrom = null, rushTailRate = 1.35, videoFilter = "none", diamondVignette = false, muted = true, children }) => {
-  const frame = useCurrentFrame();
-  const fadeInOpacity = fadeIn
-    ? interpolate(frame, [0, fadeInFrames], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
-    : 1;
-  const fadeOutOpacity = fadeOut
-    ? interpolate(frame, [duration - fadeOutFrames, duration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
-    : 1;
-  const opacity = Math.min(fadeInOpacity, fadeOutOpacity);
-  let scale = 1;
-  if (zoomIn) scale = interpolate(frame, [0, TRANSITION], [1.09, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  if (zoomOut) scale = interpolate(frame, [duration - TRANSITION, duration], [1, 1.09], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const highlight = waterHighlight
-    ? interpolate(frame, [duration - PHONE_TRANSITION, duration - 5, duration], [0, 0.24, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
-    : 0;
-  const flash = phoneFlash
-    ? interpolate(frame, [0, 4, 10, PHONE_TRANSITION], [0.08, 0.22, 0.09, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
-    : 0;
-  const diamondGlint = diamondFlash
-    ? interpolate(frame, [duration - DIAMOND_TRANSITION, duration - 8, duration], [0, 0.72, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
-    : 0;
-  return (
-    <AbsoluteFill style={{ opacity, transform: `scale(${scale})`, backgroundColor: "#050505" }}>
-      {rushTailFrom !== null ? (
-        <>
-          <Sequence from={0} durationInFrames={rushTailFrom}>
-            <OffthreadVideo src={staticFile(src)} muted={muted} startFrom={0} endAt={rushTailFrom} style={{ width: "100%", height: "100%", objectFit: "cover", filter: videoFilter }} />
-          </Sequence>
-          <Sequence from={rushTailFrom} durationInFrames={duration - rushTailFrom}>
-            <OffthreadVideo src={staticFile(src)} muted startFrom={rushTailFrom} endAt={300} playbackRate={rushTailRate} style={{ width: "100%", height: "100%", objectFit: "cover", filter: videoFilter }} />
-          </Sequence>
-        </>
-      ) : slowStartFrame === null ? (
-        <OffthreadVideo src={staticFile(src)} muted playbackRate={playbackRate} style={{ width: "100%", height: "100%", objectFit: "cover", filter: videoFilter }} />
-      ) : (
-        <>
-          <Sequence from={0} durationInFrames={slowStartFrame}>
-            <OffthreadVideo src={staticFile(src)} muted startFrom={0} endAt={slowStartFrame} style={{ width: "100%", height: "100%", objectFit: "cover", filter: videoFilter }} />
-          </Sequence>
-          <Sequence from={slowStartFrame} durationInFrames={Math.ceil((180 - slowStartFrame) / slowPlaybackRate)}>
-            <OffthreadVideo src={staticFile(src)} muted startFrom={slowStartFrame} endAt={180} playbackRate={slowPlaybackRate} style={{ width: "100%", height: "100%", objectFit: "cover", filter: videoFilter }} />
-          </Sequence>
-        </>
-      )}
-      {diamondVignette && <AbsoluteFill style={{ pointerEvents: "none", background: "radial-gradient(ellipse at center, rgba(0,0,0,0) 54%, rgba(0,0,0,0.20) 100%)" }} />}
-      {children}
-      {highlight > 0 && <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 42%, rgba(224,248,255,0.68) 0%, rgba(170,224,245,0.24) 34%, rgba(3,7,13,0) 72%)", opacity: highlight }} />}
-      {diamondGlint > 0 && <AbsoluteFill style={{ background: "radial-gradient(ellipse at 52% 48%, rgba(255,250,229,0.95) 0%, rgba(235,195,119,0.48) 12%, rgba(235,195,119,0.12) 30%, rgba(0,0,0,0) 62%)", mixBlendMode: "screen", opacity: diamondGlint }} />}
-      {flash > 0 && <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 46%, rgba(255,246,220,0.88) 0%, rgba(230,190,116,0.34) 26%, rgba(3,5,8,0) 72%)", mixBlendMode: "screen", opacity: flash }} />}
-    </AbsoluteFill>
-  );
-};
+const starts = scenes.reduce((result, scene, index) => {
+  result.push(index === 0 ? 0 : result[index - 1] + scenes[index - 1].frames - TRANSITION_FRAMES);
+  return result;
+}, []);
 
+export const IMPERIAL_LUXE_REEL_DURATION =
+  starts[3] + scenes[3].frames;
 
 const GoldTransition = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 23], [-0.35, 1.35], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const opacity = interpolate(frame, [0, 4, 18, 23], [0, 0.9, 0.72, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const sweep = interpolate(frame, [0, TRANSITION_FRAMES - 1], [-110, 110], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const opacity = interpolate(
+    frame,
+    [0, 4, TRANSITION_FRAMES - 5, TRANSITION_FRAMES - 1],
+    [0, 0.9, 0.75, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
   return (
-    <AbsoluteFill style={{ pointerEvents: "none", opacity, overflow: "hidden" }}>
+    <AbsoluteFill style={{ pointerEvents: "none", overflow: "hidden", opacity }}>
       <div style={{
-        position: "absolute", inset: 0,
-        background: "linear-gradient(112deg, transparent 0%, rgba(196,151,76,0.04) 38%, rgba(255,235,185,0.72) 49%, rgba(173,125,48,0.22) 53%, transparent 66%)",
-        transform: `translateX(${progress * 115 - 35}%)`,
-        mixBlendMode: "screen"
-      }} />
-      <div style={{
-        position: "absolute", top: 0, bottom: 0, width: "2px", left: `${progress * 130 - 15}%`,
-        background: "linear-gradient(180deg, transparent, rgba(255,239,194,0.95), rgba(190,143,67,0.7), transparent)",
-        boxShadow: "0 0 24px 8px rgba(226,184,111,0.42)"
+        position: "absolute",
+        inset: 0,
+        background: "linear-gradient(110deg, transparent 35%, rgba(255,225,165,0.68) 49%, rgba(177,128,53,0.28) 53%, transparent 66%)",
+        transform: `translateX(${sweep}%)`,
+        mixBlendMode: "screen",
       }} />
     </AbsoluteFill>
   );
 };
 
-const PhoneBreakingNews = () => (
-  <div style={{
-    position: "absolute", left: "22%", top: "29%", width: "56%", boxSizing: "border-box",
-    padding: "3.2% 3.6%", borderRadius: 28, background: "rgba(17, 20, 25, 0.96)",
-    border: "1px solid rgba(232,194,124,0.58)", backgroundImage: "linear-gradient(145deg, rgba(255,255,255,0.12), transparent 38%), linear-gradient(160deg, rgba(24,27,32,0.98), rgba(7,9,13,0.97))", backdropFilter: "blur(16px)", boxShadow: "0 18px 54px rgba(0,0,0,0.58), 0 0 26px rgba(220,177,99,0.12), inset 0 1px 0 rgba(255,255,255,0.20), inset 0 0 0 1px rgba(232,194,124,0.10)",
-    color: "#f7f8fa", fontFamily: "Arial, Helvetica, sans-serif",
-    transform: "rotate(24deg)", transformOrigin: "center center", pointerEvents: "none"
-  }}>
-    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-      <div style={{ width: 34, height: 34, borderRadius: 9, background: "#b93630", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 23, fontWeight: 800, color: "#fff" }}>!</div>
-      <div style={{ fontSize: 25, letterSpacing: 1, fontWeight: 800, color: "#f0c77a" }}>BREAKING NEWS</div>
-      <div style={{ marginLeft: "auto", fontSize: 17, color: "rgba(255,255,255,0.65)" }}>СЕЙЧАС</div>
-    </div>
-    <div style={{ height: 1, background: "rgba(255,255,255,0.17)", marginBottom: 18 }} />
-    <div style={{ fontSize: 39, lineHeight: 1.05, fontWeight: 800, marginBottom: 13 }}>СРОЧНО!</div>
-    <div style={{ fontSize: 28, lineHeight: 1.15, fontWeight: 700, marginBottom: 11 }}>АЭРОПОРТ ШЕРЕМЕТЬЕВО</div>
-    <div style={{ fontSize: 24, lineHeight: 1.2, marginBottom: 13 }}>ОБНАРУЖЕНА КОНТРАБАНДА</div>
-    <div style={{ fontSize: 37, lineHeight: 1.05, fontWeight: 800, color: "#f0c77a" }}>НА 2 000 000 $</div>
-  </div>
-);
+const Scene = ({ scene }) => {
+  const frame = useCurrentFrame();
+  const fadeIn = interpolate(frame, [0, TRANSITION_FRAMES], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const fadeOut = interpolate(
+    frame,
+    [scene.frames - TRANSITION_FRAMES, scene.frames],
+    [1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#050505", opacity: Math.min(fadeIn, fadeOut) }}>
+      <OffthreadVideo
+        src={staticFile(scene.video)}
+        muted={!scene.embeddedAudio}
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+      {scene.audio && <Audio src={staticFile(scene.audio)} volume={1} />}
+    </AbsoluteFill>
+  );
+};
 
 export const ImperialLuxeReel = () => (
   <AbsoluteFill style={{ backgroundColor: "#050505", overflow: "hidden" }}>
-    <Sequence from={0} durationInFrames={SCENE_1}>
-      <ReelClip src="videos/01-pervaya-scena-jaguar.mp4" duration={SCENE_1} fadeIn={false} fadeOut />
-      <Audio src={staticFile("videos/Сцена первая.m4a")} volume={1} />
-    </Sequence>
-    <Sequence from={START_2} durationInFrames={SCENE_2}>
-      <ReelClip src="videos/02-vtoraya-scena-kot-v-jaguar.mp4" duration={SCENE_2} fadeIn fadeOut fadeOutFrames={DIAMOND_TRANSITION} zoomOut />
-      <Audio src={staticFile("videos/Сцена вторая.mp3")} volume={1} />
-    </Sequence>
-    <Sequence from={START_3} durationInFrames={SCENE_3}>
-      <ReelClip src="videos/03-scena-tretya.mp4" duration={SCENE_3} fadeIn fadeOut fadeInFrames={DIAMOND_TRANSITION} fadeOutFrames={PHONE_TRANSITION} />
-      <Audio src={staticFile("videos/Сцена третья аудио.mp3")} volume={1} />
-    </Sequence>
-    <Sequence from={START_4} durationInFrames={SCENE_4}>
-      <ReelClip src="videos/04-chetvertaya-scena-s-muzykoy.mp4" duration={SCENE_4} fadeIn fadeOut={false} fadeInFrames={PHONE_TRANSITION} muted={false}>
-        <PhoneBreakingNews />
-      </ReelClip>
-    </Sequence>
-
-    {/* Restrained black-and-gold light sweeps bridge each scene without changing source clips. */}
-    <Sequence from={START_2} durationInFrames={24}><GoldTransition /></Sequence>
-    <Sequence from={START_3} durationInFrames={24}><GoldTransition /></Sequence>
-    <Sequence from={START_4} durationInFrames={24}><GoldTransition /></Sequence>
-    {/* The fourth source clip already contains its own music. No extra track is added. */}
+    {scenes.map((scene, index) => (
+      <Sequence
+        key={scene.video}
+        from={starts[index]}
+        durationInFrames={scene.frames}
+      >
+        <Scene scene={scene} />
+      </Sequence>
+    ))}
+    {starts.slice(1).map((start, index) => (
+      <Sequence key={`transition-${index}`} from={start} durationInFrames={TRANSITION_FRAMES}>
+        <GoldTransition />
+      </Sequence>
+    ))}
   </AbsoluteFill>
 );
