@@ -60,7 +60,7 @@ jobs:
 
       - name: Export iPhone-ready MP4 (H.264 Main, 1080x1920, AAC)
         run: |
-          ffmpeg -y -i "out/${{ inputs.output_name }}-video-only.mp4" \
+          ffmpeg -y -i "out/${{ inputs.output_name || 'final-video' }}-video-only.mp4" \
             -map 0:v:0 -map 0:a:0? \
             -vf "scale=1080:1920:flags=lanczos,setsar=1,fps=30,format=yuv420p" \
             -c:v libx264 -profile:v main -level:v 4.0 -preset medium -crf 18 \
