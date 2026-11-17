@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - test/remotion-4.0.544
     paths:
       - 'audio-studio/**'
       - 'SOUND_LIBRARY/**'
