@@ -1,0 +1,44 @@
+name: Third scene music ducking test
+
+on:
+  push:
+    branches:
+      - test/remotion-4.0.544
+    paths:
+      - '.github/workflows/third-scene-music-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  mix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Mix music under third scene and duck for cat voice
+        shell: bash
+        run: |
+          set -euo pipefail
+          video='remotion/public/videos/03-scena-tretya.mp4'
+          music='remotion/public/videos/Сцена вторая.mp3'
+          output='remotion/public/videos/03-scena-tretya-music-test.mp4'
+          test -s "$video"
+          test -s "$music"
+          duration=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$video")
+          echo "Video duration: $duration"
+          ffmpeg -y -i "$video" -stream_loop -1 -i "$music" \
+            -filter_complex "[1:a]volume='if(lt(t,5.40),1,if(lt(t,5.60),1-0.4*(t-5.40)/0.20,0.60))':eval=frame[music];[0:a:0]aresample=48000[original];[music]aresample=48000[music48];[original][music48]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.98[a]" \
+            -map 0:v:0 -map "[a]" -c:v copy -c:a aac -b:a 192k -ar 48000 -ac 2 -t "$duration" -movflags +faststart "$output"
+          echo "Output metadata:"
+          ffprobe -v error -show_entries format=duration,size:stream=codec_type,codec_name,width,height -of json "$output"
+
+      - name: Upload test video
+        uses: actions/upload-artifact@v4
+        with:
+          name: third-scene-cat-music-ducking-test
+          path: remotion/public/videos/03-scena-tretya-music-test.mp4
+          if-no-files-found: error
