@@ -378,28 +378,45 @@ const GlassesShatterTest = () => {
     extrapolateRight: "clamp",
   });
 
+  // Five localized glass impacts across the two lenses. The untouched
+  // original video remains underneath every effect layer.
+  const impacts = [
+    { center: [0.445, 0.435], seed: 73 },
+    { center: [0.472, 0.435], seed: 79 },
+    { center: [0.500, 0.438], seed: 83 },
+    { center: [0.528, 0.435], seed: 89 },
+    { center: [0.555, 0.435], seed: 97 },
+  ];
+
   return (
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
       <Video
         src={staticFile("videos/content 3.mp4")}
         style={{ width: "100%", height: "100%", objectFit: "contain" }}
-        effects={[
-          shatter({
-            time: shatterTime,
-            pattern: "glass",
-            repetitions: 22,
-            center: [0.5, 0.48],
-            radius: 0.24,
-            strength: 3.8,
-            rotationSpeed: 0.12,
-            randomness: 0.12,
-            viscosity: 0.22,
-            gravity: 1.6,
-            extrusionDepth: 0.025,
-            seed: 73,
-          }),
-        ]}
       />
+      {impacts.map(({ center, seed }, index) => (
+        <Video
+          key={seed}
+          src={staticFile("videos/content 3.mp4")}
+          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          effects={[
+            shatter({
+              time: shatterTime,
+              pattern: "glass",
+              repetitions: 14,
+              center,
+              radius: 0.052,
+              strength: 2.4,
+              rotationSpeed: 0.1,
+              randomness: 0.08,
+              viscosity: 0.3,
+              gravity: 1.15,
+              extrusionDepth: 0.012,
+              seed,
+            }),
+          ]}
+        />
+      ))}
     </AbsoluteFill>
   );
 };
