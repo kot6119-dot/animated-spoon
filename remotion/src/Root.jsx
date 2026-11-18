@@ -416,14 +416,7 @@ const GlassesShatterTest = () => {
         <Video
           key={seed}
           src={staticFile("videos/content 3.mp4")}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            clipPath: index === 0
-              ? "ellipse(3.4% 2.7% at 44.5% 43.5%)"
-              : "ellipse(3.4% 2.7% at 55.5% 43.5%)",
-          }}
+          style={{ width: "100%", height: "100%", objectFit: "contain" }}
           effects={[
             shatter({
               time: shatterTime,
