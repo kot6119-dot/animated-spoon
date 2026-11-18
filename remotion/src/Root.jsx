@@ -12,14 +12,17 @@ import { shatter } from "@remotion/effects/shatter";
 const FPS = 30;
 const DURATION = 8 * FPS;
 
-// The source video is 910x512, displayed centered inside the 1080x1920
-// composition. The close-up puts the glasses around 19% down the source frame.
-const VIDEO_TOP = (1920 - 1080 * (512 / 910)) / 2;
-const VIDEO_HEIGHT = 1080 * (512 / 910);
+// The source image in the rendered close-up occupies this centered square
+// on the 1080x1920 composition. Keep the effect layer aligned to that image,
+// not to the full 16:9/vertical canvas.
+const IMAGE_LEFT = 203;
+const IMAGE_TOP = 564;
+const IMAGE_WIDTH = 522;
+const IMAGE_HEIGHT = 520;
 
 const GlassesShatter = ({ src }) => {
   const frame = useCurrentFrame();
-  const startFrame = 180; // Begin after the close-up has settled.
+  const startFrame = 180;
   const elapsed = Math.max(0, frame - startFrame);
 
   if (frame < startFrame || frame > startFrame + 36) {
@@ -35,10 +38,10 @@ const GlassesShatter = ({ src }) => {
     <div
       style={{
         position: "absolute",
-        left: 0,
-        top: VIDEO_TOP,
-        width: 1080,
-        height: VIDEO_HEIGHT,
+        left: IMAGE_LEFT,
+        top: IMAGE_TOP,
+        width: IMAGE_WIDTH,
+        height: IMAGE_HEIGHT,
         overflow: "hidden",
         pointerEvents: "none",
       }}
@@ -46,14 +49,14 @@ const GlassesShatter = ({ src }) => {
       <Video
         src={src}
         muted
-        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+        style={{ width: "100%", height: "100%", objectFit: "fill" }}
         effects={[
           shatter({
             time,
             pattern: "glass",
             repetitions: 48,
-            center: [0.5, 0.19],
-            radius: 0.13,
+            center: [0.5, 0.185],
+            radius: 0.16,
             depth: 0.02,
             strength: 5.5,
             rotationSpeed: 0.28,
