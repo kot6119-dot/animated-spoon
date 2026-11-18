@@ -377,9 +377,9 @@ const GlassesShatterTest = () => {
   // Three short, side-by-side-in-time experiments. The source video stays
   // untouched underneath; only small lens-shaped windows receive shatter.
   const variants = [
-    { from: 150, to: 179, radius: 0.035, strength: 4, repetitions: 42, seed: 73, label: "TEST 1: tight lens radius" },
-    { from: 180, to: 209, radius: 0.045, strength: 5, repetitions: 48, seed: 89, label: "TEST 2: medium lens radius" },
-    { from: 210, to: 239, radius: 0.055, strength: 6, repetitions: 54, seed: 97, label: "TEST 3: wider lens radius" },
+    { from: 150, to: 179, radius: 0.065, strength: 5, repetitions: 42, seed: 73, label: "TEST 1: radius 0.065" },
+    { from: 180, to: 209, radius: 0.075, strength: 6, repetitions: 48, seed: 89, label: "TEST 2: radius 0.075" },
+    { from: 210, to: 239, radius: 0.085, strength: 7, repetitions: 54, seed: 97, label: "TEST 3: radius 0.085" },
   ];
 
   const activeVariant = variants.find((v) => frame >= v.from && frame <= v.to) ?? variants[0];
