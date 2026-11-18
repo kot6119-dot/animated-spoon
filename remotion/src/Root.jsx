@@ -30,7 +30,7 @@ const FinalFrameShatter = () => {
   const effect = shatter({
     time,
     pattern: "glass",
-    repetitions: 150,
+    repetitions: 100,
     center: [0.5, 0.5],
     radius: 0.82,
     strength: 9,
