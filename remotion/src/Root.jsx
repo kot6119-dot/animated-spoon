@@ -412,14 +412,15 @@ const GlassesShatterTest = () => {
             height: "100%",
             objectFit: "contain",
             opacity: visible,
-            // Isolate each lens from the rest of the duplicate full-frame video.
-            clipPath: `ellipse(3.1% 2.7% at ${center[0] * 100}% ${center[1] * 100}%)`,
+            // Leave room for the glass fragments to travel beyond the lens edge.
+            clipPath: `ellipse(8% 7% at ${center[0] * 100}% ${center[1] * 100}%)`,
           }}
           effects={[
             shatter({
               time: effectTime,
               pattern: "glass",
               repetitions: activeVariant.repetitions,
+              origin: center,
               center,
               radius: activeVariant.radius,
               strength: activeVariant.strength,
