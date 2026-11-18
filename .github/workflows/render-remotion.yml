@@ -1,4 +1,4 @@
-name: Render new Remotion video
+name: Render Remotion video
 
 on:
   push:
@@ -51,12 +51,6 @@ jobs:
 
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-      - name: Extract the final source-video frame for the glass-shatter outro
-        run: |
-          mkdir -p public/images
-          ffmpeg -y -sseof -0.05 -i "public/videos/content 3.mp4" -frames:v 1 -q:v 2 public/images/final-frame.png
-          test -s public/images/final-frame.png
 
       - name: List available compositions
         run: npx remotion compositions src/index.jsx
