@@ -63,6 +63,7 @@ const GlassesBreak = () => {
         </filter>
       </defs>
 
+      <g transform="translate(-56 105) scale(1.12 1)">
       <g opacity={crack}>
         {/* Fine fractures across the left lens */}
         <g fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -114,6 +115,7 @@ const GlassesBreak = () => {
           <path d="M 420 654 L 405 650 M 427 660 L 440 653 M 493 662 L 481 653 M 508 671 L 519 675" stroke="#dcecf0" strokeWidth="1.25" />
         </g>
       )}
+      </g>
     </svg>
   );
 };
