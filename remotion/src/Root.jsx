@@ -390,11 +390,11 @@ const GlassesShatterTest = () => {
   });
   const visible = frame >= activeVariant.from && frame <= activeVariant.to ? 1 : 0;
 
-  // Coordinates are relative to the square source video (not the 1920x1080 output frame).
-  // The source video is centered with contain-fit; these points were measured from the rendered frame.
+  // shatter coordinates are normalized to the full 1920x1080 effect layer.
+  // Lens centers measured on the rendered test frame: left x≈770, right x≈910, y≈162.
   const lenses = [
-    { origin: [0.35, 0.41], center: [0.35, 0.41], seedOffset: 0 },
-    { origin: [0.59, 0.41], center: [0.59, 0.41], seedOffset: 1 },
+    { origin: [0.401, 0.150], center: [0.401, 0.150], seedOffset: 0 },
+    { origin: [0.474, 0.150], center: [0.474, 0.150], seedOffset: 1 },
   ];
 
   return (
