@@ -374,12 +374,12 @@ const FirstSceneVideoTest = () => (
 const GlassesShatterTest = () => {
   const frame = useCurrentFrame();
 
-  // Three short, side-by-side-in-time experiments. The source video stays
-  // untouched underneath; only small lens-shaped windows receive shatter.
+  // Isolated lens artwork: the effect now receives only the lens-shaped
+  // transparent SVG layers, never the cat's face or the full source video.
   const variants = [
-    { from: 150, to: 179, radius: 0.065, strength: 5, repetitions: 42, seed: 73, label: "TEST 1: radius 0.065" },
-    { from: 180, to: 209, radius: 0.075, strength: 6, repetitions: 48, seed: 89, label: "TEST 2: radius 0.075" },
-    { from: 210, to: 239, radius: 0.085, strength: 7, repetitions: 54, seed: 97, label: "TEST 3: radius 0.085" },
+    { from: 150, to: 179, radius: 0.19, strength: 7, repetitions: 44, seed: 73, label: "ISOLATED LENS TEST 1" },
+    { from: 180, to: 209, radius: 0.22, strength: 8, repetitions: 52, seed: 89, label: "ISOLATED LENS TEST 2" },
+    { from: 210, to: 239, radius: 0.25, strength: 9, repetitions: 60, seed: 97, label: "ISOLATED LENS TEST 3" },
   ];
 
   const activeVariant = variants.find((v) => frame >= v.from && frame <= v.to) ?? variants[0];
@@ -389,12 +389,9 @@ const GlassesShatterTest = () => {
     extrapolateRight: "clamp",
   });
   const visible = frame >= activeVariant.from && frame <= activeVariant.to ? 1 : 0;
-
-  // shatter coordinates are normalized to the full 1920x1080 effect layer.
-  // Lens centers measured on the rendered test frame: left x≈770, right x≈910, y≈162.
   const lenses = [
-    { origin: [0.401, 0.150], center: [0.401, 0.150], seedOffset: 0 },
-    { origin: [0.474, 0.150], center: [0.474, 0.150], seedOffset: 1 },
+    { src: "images/glasses-left-lens.svg", center: [0.38, 0.415], seedOffset: 0 },
+    { src: "images/glasses-right-lens.svg", center: [0.78, 0.415], seedOffset: 1 },
   ];
 
   return (
@@ -403,16 +400,16 @@ const GlassesShatterTest = () => {
         src={staticFile("videos/content 3.mp4")}
         style={{ width: "100%", height: "100%", objectFit: "contain" }}
       />
-      {lenses.map(({ origin, center, seedOffset }) => (
-        <Video
+      {lenses.map(({ src, center, seedOffset }) => (
+        <Img
           key={seedOffset}
-          src={staticFile("videos/content 3.mp4")}
+          src={staticFile(src)}
           style={{
             position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
+            left: 650,
+            top: 70,
+            width: 300,
+            height: 200,
             opacity: visible,
           }}
           effects={[
@@ -420,15 +417,15 @@ const GlassesShatterTest = () => {
               time: effectTime,
               pattern: "glass",
               repetitions: activeVariant.repetitions,
-              origin,
+              origin: center,
               center,
               radius: activeVariant.radius,
               strength: activeVariant.strength,
-              rotationSpeed: 0.18,
-              randomness: 0.16,
-              viscosity: 0.12,
-              gravity: 1.25,
-              extrusionDepth: 0.018,
+              rotationSpeed: 0.2,
+              randomness: 0.18,
+              viscosity: 0.08,
+              gravity: 1.3,
+              extrusionDepth: 0.025,
               seed: activeVariant.seed + seedOffset,
             }),
           ]}
