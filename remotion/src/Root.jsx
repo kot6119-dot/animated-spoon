@@ -28,8 +28,8 @@ const GlassesBreak = () => {
     time: shatterTime,
     pattern: "glass",
     repetitions: 30,
-    center: [0.47, 0.40],
-    radius: 0.12,
+    center: [0.405, 0.34],
+    radius: 0.075,
     strength: 7,
     rotationSpeed: 0.35,
     randomness: 0.18,
@@ -44,7 +44,7 @@ const GlassesBreak = () => {
     time: shatterTime,
     pattern: "glass",
     repetitions: 30,
-    center: [0.55, 0.40],
+    center: [0.484, 0.34],
     radius: 0.12,
     strength: 7,
     rotationSpeed: 0.35,
@@ -72,7 +72,7 @@ const GlassesBreak = () => {
             width: "100%",
             height: "100%",
             overflow: "hidden",
-            clipPath: "path('M 458px 757px Q 468px 730px 501px 729px Q 536px 730px 552px 750px L 547px 786px Q 528px 808px 496px 805px Q 468px 800px 458px 778px Z')",
+            clipPath: "path('M 397px 645px Q 402px 625px 432px 623px Q 462px 624px 476px 642px L 472px 665px Q 455px 681px 430px 679px Q 405px 676px 397px 659px Z')",
           }}
         >
           <Video
@@ -97,7 +97,7 @@ const GlassesBreak = () => {
             width: "100%",
             height: "100%",
             overflow: "hidden",
-            clipPath: "path('M 548px 750px Q 566px 730px 599px 731px Q 631px 733px 645px 753px L 641px 783px Q 625px 805px 592px 807px Q 562px 803px 548px 783px Z')",
+            clipPath: "path('M 468px 642px Q 484px 624px 519px 624px Q 555px 625px 576px 644px L 570px 666px Q 552px 682px 520px 682px Q 488px 678px 468px 660px Z')",
           }}
         >
           <Video
