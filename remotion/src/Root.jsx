@@ -1,5 +1,7 @@
 import { ImperialLuxeReel, IMPERIAL_LUXE_REEL_DURATION } from "./ImperialLuxeReel";
 import React from "react";
+import { Video } from "@remotion/media";
+import { shatter } from "@remotion/effects/shatter";
 import {
   AbsoluteFill,
   Audio,
@@ -368,8 +370,43 @@ const FirstSceneVideoTest = () => (
   </AbsoluteFill>
 );
 
+
+const GlassesShatterTest = () => {
+  const frame = useCurrentFrame();
+  const shatterTime = interpolate(frame, [165, 180, 239], [0, 0.9, 1.8], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#000" }}>
+      <Video
+        src={staticFile("videos/content 3.mp4")}
+        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+        effects={[
+          shatter({
+            time: shatterTime,
+            pattern: "glass",
+            repetitions: 22,
+            center: [0.5, 0.48],
+            radius: 0.24,
+            strength: 3.8,
+            rotationSpeed: 0.12,
+            randomness: 0.12,
+            viscosity: 0.22,
+            gravity: 1.6,
+            extrusionDepth: 0.025,
+            seed: 73,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+
 export const RemotionRoot = () => (
   <>
+    <Composition id="GlassesShatterTest" component={GlassesShatterTest} durationInFrames={240} fps={30} width={1920} height={1080} />
     <Composition id="ThirdSceneCatMusicTest" component={ThirdSceneCatMusicTest} durationInFrames={269} fps={30} width={1920} height={1080} />
     <Composition id="FirstSceneVideoTest" component={FirstSceneVideoTest} durationInFrames={153} fps={30} width={1920} height={1080} />
     <Composition id="ImperialLuxeReel" component={ImperialLuxeReel} durationInFrames={IMPERIAL_LUXE_REEL_DURATION} fps={30} width={1080} height={1920} />
