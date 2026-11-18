@@ -11,10 +11,13 @@
     "render-smartphone": "remotion render src/index.jsx SmartphoneNotification out/smartphone-notification.mp4 --codec=h264",
     "render-reel": "remotion render src/index.jsx ImperialLuxeReel out/imperial-luxe-reel-video-only.mp4 --codec=h264",
     "render-first-scene-test": "remotion render src/index.jsx FirstSceneVideoTest out/first-scene-lightning-remotion-4.0.544-test.mp4 --codec=h264",
-    "render-third-scene-cat-music-test": "remotion render src/index.jsx ThirdSceneCatMusicTest out/third-scene-cat-music-remotion-test.mp4 --codec=h264"
+    "render-third-scene-cat-music-test": "remotion render src/index.jsx ThirdSceneCatMusicTest out/third-scene-cat-music-remotion-test.mp4 --codec=h264",
+    "render-glasses-shatter-test": "remotion render src/index.jsx GlassesShatterTest out/glasses-shatter-test.mp4 --codec=h264 --frames=150-239"
   },
   "dependencies": {
     "@remotion/cli": "4.0.544",
+    "@remotion/effects": "4.0.544",
+    "@remotion/media": "4.0.544",
     "remotion": "4.0.544",
     "react": "18.3.1",
     "react-dom": "18.3.1"
