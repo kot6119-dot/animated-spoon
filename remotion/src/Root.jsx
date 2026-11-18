@@ -378,14 +378,16 @@ const GlassesShatterTest = () => {
     extrapolateRight: "clamp",
   });
 
-  // Five localized glass impacts across the two lenses. The untouched
-  // original video remains underneath every effect layer.
+  // The source image is 16:9. Mask only the inner glass areas on the
+  // untouched base, then let the native glass shatter render into those
+  // openings. The gold rims and the rest of the cat remain on the base.
+  const lensShapes = [
+    { cx: 0.445, cy: 0.435, rx: 0.034, ry: 0.027 },
+    { cx: 0.555, cy: 0.435, rx: 0.034, ry: 0.027 },
+  ];
   const impacts = [
     { center: [0.445, 0.435], seed: 73 },
-    { center: [0.472, 0.435], seed: 79 },
-    { center: [0.500, 0.438], seed: 83 },
-    { center: [0.528, 0.435], seed: 89 },
-    { center: [0.555, 0.435], seed: 97 },
+    { center: [0.555, 0.435], seed: 89 },
   ];
 
   return (
@@ -394,24 +396,47 @@ const GlassesShatterTest = () => {
         src={staticFile("videos/content 3.mp4")}
         style={{ width: "100%", height: "100%", objectFit: "contain" }}
       />
+      <svg
+        viewBox="0 0 1920 1080"
+        preserveAspectRatio="none"
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+      >
+        {lensShapes.map(({ cx, cy, rx, ry }) => (
+          <ellipse
+            key={cx}
+            cx={cx * 1920}
+            cy={cy * 1080}
+            rx={rx * 1920}
+            ry={ry * 1080}
+            fill="#050505"
+          />
+        ))}
+      </svg>
       {impacts.map(({ center, seed }, index) => (
         <Video
           key={seed}
           src={staticFile("videos/content 3.mp4")}
-          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            clipPath: index === 0
+              ? "ellipse(3.4% 2.7% at 44.5% 43.5%)"
+              : "ellipse(3.4% 2.7% at 55.5% 43.5%)",
+          }}
           effects={[
             shatter({
               time: shatterTime,
               pattern: "glass",
-              repetitions: 14,
+              repetitions: 28,
               center,
-              radius: 0.052,
-              strength: 2.4,
-              rotationSpeed: 0.1,
-              randomness: 0.08,
-              viscosity: 0.3,
-              gravity: 1.15,
-              extrusionDepth: 0.012,
+              radius: 0.055,
+              strength: 3.4,
+              rotationSpeed: 0.16,
+              randomness: 0.12,
+              viscosity: 0.18,
+              gravity: 1.35,
+              extrusionDepth: 0.018,
               seed,
             }),
           ]}
