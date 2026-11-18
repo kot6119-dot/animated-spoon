@@ -2,29 +2,31 @@ import React from "react";
 import {
   AbsoluteFill,
   Composition,
-  Video,
   staticFile,
   useCurrentFrame,
   interpolate,
 } from "remotion";
+import { Video } from "@remotion/media";
 import { shatter } from "@remotion/effects/shatter";
 
 const FPS = 30;
 const DURATION = 8 * FPS;
 
-// The source is a 16:9 clip fitted into the vertical composition.
-// Its visible image is centered vertically, so the glasses sit near 17%
-// of the source image height, not at the old arbitrary composition y=850.
+// The source video is 910x512, displayed centered inside the 1080x1920
+// composition. The close-up puts the glasses around 19% down the source frame.
 const VIDEO_TOP = (1920 - 1080 * (512 / 910)) / 2;
 const VIDEO_HEIGHT = 1080 * (512 / 910);
 
 const GlassesShatter = ({ src }) => {
   const frame = useCurrentFrame();
-  const startFrame = 180; // 6 seconds, after the planned close-up
+  const startFrame = 180; // Begin after the close-up has settled.
   const elapsed = Math.max(0, frame - startFrame);
-  if (frame < startFrame || frame > startFrame + 30) return null;
 
-  const time = interpolate(elapsed, [0, 30], [0, 1.05], {
+  if (frame < startFrame || frame > startFrame + 36) {
+    return null;
+  }
+
+  const time = interpolate(elapsed, [0, 36], [0, 1.2], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -49,10 +51,9 @@ const GlassesShatter = ({ src }) => {
           shatter({
             time,
             pattern: "glass",
-            repetitions: 26,
-            origin: [0.5, 0.17],
-            center: [0.5, 0.17],
-            radius: 0.145,
+            repetitions: 48,
+            center: [0.5, 0.19],
+            radius: 0.13,
             depth: 0.02,
             strength: 5.5,
             rotationSpeed: 0.28,
