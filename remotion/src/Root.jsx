@@ -406,10 +406,10 @@ const GlassesShatterTest = () => {
           src={staticFile(src)}
           style={{
             position: "absolute",
-            left: 650,
-            top: 70,
-            width: 300,
-            height: 200,
+            left: 700,
+            top: 60,
+            width: 500,
+            height: 300,
             opacity: visible,
           }}
           effects={[
