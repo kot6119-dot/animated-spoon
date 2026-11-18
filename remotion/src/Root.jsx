@@ -373,21 +373,26 @@ const FirstSceneVideoTest = () => (
 
 const GlassesShatterTest = () => {
   const frame = useCurrentFrame();
-  const shatterTime = interpolate(frame, [165, 180, 239], [0, 0.9, 1.8], {
+
+  // Three short, side-by-side-in-time experiments. The source video stays
+  // untouched underneath; only small lens-shaped windows receive shatter.
+  const variants = [
+    { from: 150, to: 179, radius: 0.045, strength: 2.4, repetitions: 18, seed: 73, label: "TEST 1: tight / gentle" },
+    { from: 180, to: 209, radius: 0.060, strength: 3.2, repetitions: 28, seed: 89, label: "TEST 2: medium" },
+    { from: 210, to: 239, radius: 0.075, strength: 4.1, repetitions: 38, seed: 97, label: "TEST 3: wider / stronger" },
+  ];
+
+  const activeVariant = variants.find((v) => frame >= v.from && frame <= v.to) ?? variants[0];
+  const localFrame = Math.max(0, Math.min(29, frame - activeVariant.from));
+  const effectTime = interpolate(localFrame, [0, 29], [0, 0.96], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+  const visible = frame >= activeVariant.from && frame <= activeVariant.to ? 1 : 0;
 
-  // The source image is 16:9. Mask only the inner glass areas on the
-  // untouched base, then let the native glass shatter render into those
-  // openings. The gold rims and the rest of the cat remain on the base.
-  const lensShapes = [
-    { cx: 0.445, cy: 0.435, rx: 0.034, ry: 0.027 },
-    { cx: 0.555, cy: 0.435, rx: 0.034, ry: 0.027 },
-  ];
-  const impacts = [
-    { center: [0.445, 0.435], seed: 73 },
-    { center: [0.555, 0.435], seed: 89 },
+  const lenses = [
+    { center: [0.455, 0.285], seedOffset: 0 },
+    { center: [0.545, 0.285], seedOffset: 1 },
   ];
 
   return (
@@ -396,45 +401,54 @@ const GlassesShatterTest = () => {
         src={staticFile("videos/content 3.mp4")}
         style={{ width: "100%", height: "100%", objectFit: "contain" }}
       />
-      <svg
-        viewBox="0 0 1920 1080"
-        preserveAspectRatio="none"
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
-      >
-        {lensShapes.map(({ cx, cy, rx, ry }) => (
-          <ellipse
-            key={cx}
-            cx={cx * 1920}
-            cy={cy * 1080}
-            rx={rx * 1920}
-            ry={ry * 1080}
-            fill="#050505"
-          />
-        ))}
-      </svg>
-      {impacts.map(({ center, seed }, index) => (
+      {lenses.map(({ center, seedOffset }) => (
         <Video
-          key={seed}
+          key={seedOffset}
           src={staticFile("videos/content 3.mp4")}
-          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            opacity: visible,
+            // Isolate each lens from the rest of the duplicate full-frame video.
+            clipPath: `ellipse(3.1% 2.7% at ${center[0] * 100}% ${center[1] * 100}%)`,
+          }}
           effects={[
             shatter({
-              time: shatterTime,
+              time: effectTime,
               pattern: "glass",
-              repetitions: 28,
+              repetitions: activeVariant.repetitions,
               center,
-              radius: 0.055,
-              strength: 3.4,
-              rotationSpeed: 0.16,
-              randomness: 0.12,
-              viscosity: 0.18,
-              gravity: 1.35,
+              radius: activeVariant.radius,
+              strength: activeVariant.strength,
+              rotationSpeed: 0.18,
+              randomness: 0.16,
+              viscosity: 0.12,
+              gravity: 1.25,
               extrusionDepth: 0.018,
-              seed,
+              seed: activeVariant.seed + seedOffset,
             }),
           ]}
         />
       ))}
+      <div
+        style={{
+          position: "absolute",
+          left: 36,
+          top: 28,
+          padding: "10px 16px",
+          borderRadius: 8,
+          backgroundColor: "rgba(0,0,0,0.72)",
+          color: "#fff",
+          fontSize: 24,
+          fontFamily: "Arial, sans-serif",
+          letterSpacing: 1,
+        }}
+      >
+        {activeVariant.label}
+      </div>
     </AbsoluteFill>
   );
 };
