@@ -12,8 +12,8 @@ import { shatter } from "@remotion/effects/shatter";
 import { Video } from "@remotion/media";
 
 const FPS = 30;
-const DURATION = 8 * FPS;
-const SHATTER_START = 198;
+const DURATION = 9.4 * FPS;
+const SHATTER_START = 8 * FPS;
 const SHATTER_DURATION = 42;
 
 const FinalFrameShatter = () => {
