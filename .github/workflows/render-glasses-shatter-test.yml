@@ -1,0 +1,38 @@
+name: Render glasses shatter test
+
+on:
+  push:
+    branches:
+      - test/remotion-4.0.544
+    paths:
+      - 'remotion/**'
+      - '.github/workflows/render-glasses-shatter-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  render-glasses-shatter-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: remotion
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Install Remotion browser
+        run: npx remotion browser ensure
+      - name: Render only glasses shatter test
+        run: npm run render-glasses-shatter-test
+      - name: Upload glasses shatter test
+        uses: actions/upload-artifact@v4
+        with:
+          name: glasses-shatter-test
+          path: remotion/out/glasses-shatter-test.mp4
+          if-no-files-found: error
