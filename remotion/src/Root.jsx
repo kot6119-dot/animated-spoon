@@ -63,7 +63,7 @@ const GlassesBreak = () => {
         </filter>
       </defs>
 
-      <g transform="translate(-56 105) scale(1.12 1)">
+      <g transform="matrix(1.29 0 0 1.58 -39 -281)">
       <g opacity={crack}>
         {/* Fine fractures across the left lens */}
         <g fill="none" strokeLinecap="round" strokeLinejoin="round">
