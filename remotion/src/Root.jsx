@@ -28,9 +28,11 @@ const GlassesBreak = () => {
     <>
       <svg width="0" height="0" style={{position: "absolute"}}>
         <defs>
-          <clipPath id="glassesOnlyClip" clipPathUnits="userSpaceOnUse">
-            <path d="M 477 740 Q 490 727 516 723 Q 541 729 553 741 L 549 764 Q 535 779 510 785 Q 487 779 477 764 Z" />
-            <path d="M 587 740 Q 601 727 626 723 Q 651 729 667 741 L 664 762 Q 649 779 626 785 Q 603 785 590 770 Z" />
+          <clipPath id="leftLensShatterClip" clipPathUnits="userSpaceOnUse">
+            <path d="M 458 757 Q 468 730 501 729 Q 536 730 552 750 L 547 786 Q 528 808 496 805 Q 468 800 458 778 Z" />
+          </clipPath>
+          <clipPath id="rightLensShatterClip" clipPathUnits="userSpaceOnUse">
+            <path d="M 548 750 Q 566 730 599 731 Q 631 733 645 753 L 641 783 Q 625 805 592 807 Q 562 803 548 783 Z" />
           </clipPath>
         </defs>
       </svg>
@@ -41,7 +43,7 @@ const GlassesBreak = () => {
           width: "100%",
           height: "100%",
           overflow: "hidden",
-          clipPath: "url(#glassesOnlyClip)",
+          clipPath: "url(#leftLensShatterClip)",
           pointerEvents: "none",
         }}
       >
@@ -52,28 +54,46 @@ const GlassesBreak = () => {
             shatter({
               time: shatterTime,
               pattern: "glass",
-              repetitions: 24,
-              center: [0.5, 0.39],
-              radius: 0.24,
-              depth: 0.08,
+              repetitions: 30,
+              center: [0.47, 0.18],
+              radius: 0.12,
               strength: 7,
-              rotationSpeed: 0.3,
-              randomness: 0.2,
-              viscosity: 0.12,
-              massVariance: 0.4,
-              gravity: 1.4,
+              rotationSpeed: 0.35,
+              randomness: 0.18,
+              viscosity: 0.08,
+              massVariance: 0.35,
+              gravity: 1.2,
               seed: 27,
               extrusionDepth: 0.1,
             }),
           ]}
           effectsOutputSize={{width: 1080, height: 1920}}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-          }}
+          style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}
+        />
+      </div>
+      <div style={{position:"absolute",inset:0,width:"100%",height:"100%",overflow:"hidden",clipPath:"url(#rightLensShatterClip)",pointerEvents:"none"}}>
+        <Video
+          src={staticFile("videos/content 3.mp4")}
+          muted
+          effects={[
+            shatter({
+              time: shatterTime,
+              pattern: "glass",
+              repetitions: 30,
+              center: [0.55, 0.18],
+              radius: 0.12,
+              strength: 7,
+              rotationSpeed: 0.35,
+              randomness: 0.18,
+              viscosity: 0.08,
+              massVariance: 0.35,
+              gravity: 1.2,
+              seed: 43,
+              extrusionDepth: 0.1,
+            }),
+          ]}
+          effectsOutputSize={{width:1080,height:1920}}
+          style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}
         />
       </div>
       <svg
