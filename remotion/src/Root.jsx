@@ -377,9 +377,9 @@ const GlassesShatterTest = () => {
   // Three short, side-by-side-in-time experiments. The source video stays
   // untouched underneath; only small lens-shaped windows receive shatter.
   const variants = [
-    { from: 150, to: 179, radius: 0.045, strength: 2.4, repetitions: 18, seed: 73, label: "TEST 1: tight / gentle" },
-    { from: 180, to: 209, radius: 0.060, strength: 3.2, repetitions: 28, seed: 89, label: "TEST 2: medium" },
-    { from: 210, to: 239, radius: 0.075, strength: 4.1, repetitions: 38, seed: 97, label: "TEST 3: wider / stronger" },
+    { from: 150, to: 179, radius: 0.09, strength: 5, repetitions: 28, seed: 73, label: "TEST 1: lens / controlled" },
+    { from: 180, to: 209, radius: 0.12, strength: 7, repetitions: 36, seed: 89, label: "TEST 2: lens / medium" },
+    { from: 210, to: 239, radius: 0.15, strength: 9, repetitions: 44, seed: 97, label: "TEST 3: lens / strong" },
   ];
 
   const activeVariant = variants.find((v) => frame >= v.from && frame <= v.to) ?? variants[0];
@@ -390,9 +390,11 @@ const GlassesShatterTest = () => {
   });
   const visible = frame >= activeVariant.from && frame <= activeVariant.to ? 1 : 0;
 
+  // Coordinates are relative to the square source video (not the 1920x1080 output frame).
+  // The source video is centered with contain-fit; these points were measured from the rendered frame.
   const lenses = [
-    { center: [0.455, 0.285], seedOffset: 0 },
-    { center: [0.545, 0.285], seedOffset: 1 },
+    { origin: [0.35, 0.41], center: [0.35, 0.41], seedOffset: 0 },
+    { origin: [0.59, 0.41], center: [0.59, 0.41], seedOffset: 1 },
   ];
 
   return (
@@ -401,7 +403,7 @@ const GlassesShatterTest = () => {
         src={staticFile("videos/content 3.mp4")}
         style={{ width: "100%", height: "100%", objectFit: "contain" }}
       />
-      {lenses.map(({ center, seedOffset }) => (
+      {lenses.map(({ origin, center, seedOffset }) => (
         <Video
           key={seedOffset}
           src={staticFile("videos/content 3.mp4")}
@@ -412,15 +414,13 @@ const GlassesShatterTest = () => {
             height: "100%",
             objectFit: "contain",
             opacity: visible,
-            // Leave room for the glass fragments to travel beyond the lens edge.
-            clipPath: `ellipse(8% 7% at ${center[0] * 100}% ${center[1] * 100}%)`,
           }}
           effects={[
             shatter({
               time: effectTime,
               pattern: "glass",
               repetitions: activeVariant.repetitions,
-              origin: center,
+              origin,
               center,
               radius: activeVariant.radius,
               strength: activeVariant.strength,
