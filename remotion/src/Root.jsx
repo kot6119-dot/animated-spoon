@@ -16,24 +16,26 @@ const GlassesBreak = () => {
   const start = 180;
   if (frame < start) return null;
 
-  const crack = interpolate(frame, [start, start + 5], [0, 1], {
+  const crack = interpolate(frame, [start, start + 4], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const flight = interpolate(frame, [start + 5, start + 25], [0, 1], {
+  const burst = interpolate(frame, [start + 4, start + 16], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const shardOpacity = interpolate(frame, [start + 19, start + 27], [1, 0.12], {
+  const flyingOpacity = interpolate(frame, [start + 11, start + 19], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   const shards = [
-    { x: -24, y: -29, r: -38, dx: -46, dy: -52 },
-    { x: 13, y: -25, r: 42, dx: 46, dy: -54 },
-    { x: -49, y: 8, r: -62, dx: -70, dy: -8 },
-    { x: 47, y: 5, r: 58, dx: 70, dy: -8 },
+    { x: 420, y: 646, dx: -24, dy: -18, r: -34, points: "0,0 10,2 3,10" },
+    { x: 442, y: 644, dx: 16, dy: -24, r: 30, points: "0,0 11,3 2,10" },
+    { x: 410, y: 660, dx: -30, dy: -5, r: -48, points: "0,0 9,2 2,9" },
+    { x: 512, y: 644, dx: -16, dy: -24, r: -30, points: "0,0 11,3 2,10" },
+    { x: 534, y: 646, dx: 24, dy: -18, r: 34, points: "0,0 10,2 3,10" },
+    { x: 544, y: 660, dx: 30, dy: -5, r: 48, points: "0,0 9,2 2,9" },
   ];
 
   return (
@@ -47,72 +49,53 @@ const GlassesBreak = () => {
         width: "100%",
         height: "100%",
         pointerEvents: "none",
-        overflow: "visible",
+        overflow: "hidden",
       }}
     >
       <defs>
-        <linearGradient id="glassShard" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.92" />
-          <stop offset="48%" stopColor="#b9d8df" stopOpacity="0.48" />
+        <clipPath id="leftLensCrackClip">
+          <path d="M 398 642 Q 416 630 442 635 Q 460 638 462 653 Q 461 670 443 676 Q 418 681 402 665 Q 396 655 398 642 Z" />
+        </clipPath>
+        <clipPath id="rightLensCrackClip">
+          <path d="M 482 653 Q 484 638 502 635 Q 528 630 546 642 Q 548 655 542 665 Q 526 681 501 676 Q 483 670 482 653 Z" />
+        </clipPath>
+        <linearGradient id="newGlassShard" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
+          <stop offset="55%" stopColor="#d8e8eb" stopOpacity="0.65" />
           <stop offset="100%" stopColor="#ffffff" stopOpacity="0.12" />
         </linearGradient>
-        <filter id="shardGlow" x="-100%" y="-100%" width="300%" height="300%">
-          <feGaussianBlur stdDeviation="1.2" />
-        </filter>
       </defs>
 
       <g transform="matrix(1.29 0 0 1.58 -39 -281)">
-      <g opacity={crack}>
-        {/* Fine fractures across the left lens */}
-        <g fill="none" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M 430 646 L 420 654 L 427 660 L 414 671 L 421 679" stroke="#f4f0df" strokeWidth="1.7" />
-          <path d="M 420 654 L 405 650 L 399 642" stroke="#e7edf0" strokeWidth="1.2" />
-          <path d="M 427 660 L 440 653 L 447 641" stroke="#ffffff" strokeWidth="1.25" />
-          <path d="M 427 660 L 439 670 L 449 678" stroke="#d9e7e8" strokeWidth="1.35" />
-          <path d="M 414 671 L 404 674 L 398 680" stroke="#ffffff" strokeWidth="1.1" />
-
-          {/* Fine fractures across the right lens */}
-          <path d="M 489 645 L 501 654 L 493 662 L 508 671 L 501 679" stroke="#f4f0df" strokeWidth="1.7" />
-          <path d="M 501 654 L 517 650 L 526 642" stroke="#e7edf0" strokeWidth="1.2" />
-          <path d="M 493 662 L 481 653 L 474 642" stroke="#ffffff" strokeWidth="1.25" />
-          <path d="M 493 662 L 481 671 L 471 679" stroke="#d9e7e8" strokeWidth="1.35" />
-          <path d="M 508 671 L 519 675 L 526 681" stroke="#ffffff" strokeWidth="1.1" />
-          {/* Central bridge fracture */}
-          <path d="M 456 655 L 463 661 L 457 667 L 466 674" stroke="#ffffff" strokeWidth="1.8" />
+        {/* Both crack patterns are clipped to their own lens areas. */}
+        <g opacity={crack} fill="none" strokeLinecap="round" strokeLinejoin="round">
+          <g clipPath="url(#leftLensCrackClip)">
+            <path d="M 431 654 L 422 646 L 426 638 M 422 646 L 410 644 L 404 638 M 422 646 L 414 658 L 402 662 M 414 658 L 425 663 L 420 675 M 414 658 L 435 657 L 447 671 M 435 657 L 443 645 L 455 641 M 435 657 L 451 654 L 463 660" stroke="#f7f7ed" strokeWidth="1.15" />
+            <path d="M 431 654 L 422 646 L 426 638 M 422 646 L 410 644 L 404 638 M 414 658 L 402 662 M 435 657 L 447 671" stroke="#ffffff" strokeWidth="0.55" />
+          </g>
+          <g clipPath="url(#rightLensCrackClip)">
+            <path d="M 513 654 L 522 646 L 518 638 M 522 646 L 534 644 L 540 638 M 522 646 L 530 658 L 542 662 M 530 658 L 519 663 L 524 675 M 530 658 L 509 657 L 497 671 M 509 657 L 501 645 L 489 641 M 509 657 L 493 654 L 481 660" stroke="#f7f7ed" strokeWidth="1.15" />
+            <path d="M 513 654 L 522 646 L 518 638 M 522 646 L 534 644 L 540 638 M 530 658 L 542 662 M 509 657 L 497 671" stroke="#ffffff" strokeWidth="0.55" />
+          </g>
         </g>
-      </g>
 
-      {/* Flying glass fragments. Their motion finishes once; the cracked,
-          incomplete lens remnants below stay visible for the rest of the clip. */}
-      <g opacity={shardOpacity}>
-        {shards.map((s, i) => {
-          const x = s.x + s.dx * flight;
-          const y = s.y + s.dy * flight;
-          const rotate = s.r * flight;
-          const points = i % 2 === 0 ? "0,0 17,4 8,20" : "0,0 21,8 5,17";
-          return (
+        {/* A few tiny fragments fly outward and upward, away from the cat's muzzle. */}
+        <g opacity={flyingOpacity}>
+          {shards.map((s, i) => (
             <g
               key={i}
-              transform={`translate(${466 + x} ${660 + y}) rotate(${rotate})`}
+              transform={`translate(${s.x + s.dx * burst} ${s.y + s.dy * burst}) rotate(${s.r * burst})`}
             >
-              <polygon points={points} fill="url(#glassShard)" stroke="#f5f0d9" strokeWidth="1.1" />
-              <path d="M 2 2 L 8 12" stroke="#ffffff" strokeWidth="1" opacity="0.9" />
+              <polygon points={s.points} fill="url(#newGlassShard)" stroke="#ffffff" strokeWidth="0.7" />
             </g>
-          );
-        })}
-      </g>
-
-      {/* Permanent broken-glass state: fractured lens edges and missing
-          sections remain after the loose fragments have flown away. */}
-      {frame >= start + 5 && (
-        <g fill="none" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M 398 642 Q 420 633 444 643 L 448 650 M 447 669 L 442 677 Q 418 685 400 675" stroke="#d9b66c" strokeWidth="2.2" />
-          <path d="M 475 650 L 480 643 Q 506 633 528 644 M 528 675 Q 507 685 483 677 L 478 671" stroke="#d9b66c" strokeWidth="2.2" />
-          <path d="M 447 651 L 453 657 M 470 657 L 477 651" stroke="#d9b66c" strokeWidth="2" />
-          <path d="M 430 646 L 420 654 L 427 660 L 414 671 L 421 679 M 489 645 L 501 654 L 493 662 L 508 671 L 501 679" stroke="#ffffff" strokeWidth="1.8" />
-          <path d="M 420 654 L 405 650 M 427 660 L 440 653 M 493 662 L 481 653 M 508 671 L 519 675" stroke="#dcecf0" strokeWidth="1.25" />
+          ))}
         </g>
-      )}
+
+        {/* The fractured state remains on both lenses until the final frame. */}
+        <g opacity={crack} fill="none" stroke="#f1f3e9" strokeWidth="0.85" strokeLinecap="round">
+          <path d="M 431 654 L 422 646 L 426 638 M 422 646 L 410 644 M 414 658 L 402 662 M 435 657 L 447 671" />
+          <path d="M 513 654 L 522 646 L 518 638 M 522 646 L 534 644 M 530 658 L 542 662 M 509 657 L 497 671" />
+        </g>
       </g>
     </svg>
   );
