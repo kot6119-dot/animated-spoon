@@ -56,7 +56,7 @@ jobs:
         run: npx remotion compositions src/index.jsx
 
       - name: Render selected composition
-        run: npx remotion render src/index.jsx "${{ inputs.composition_id || 'Main' }}" "out/${{ inputs.output_name || 'final-video' }}-video-only.mp4" --codec=h264 --gl=swangle --preferred-effect-backend=webgl2
+        run: npx remotion render src/index.jsx "${{ inputs.composition_id || 'Main' }}" "out/${{ inputs.output_name || 'final-video' }}-video-only.mp4" --codec=h264 --gl=swangle --preferred-effect-backend=webgpu
 
       - name: Export iPhone-ready MP4 (H.264 Main, 1080x1920, AAC)
         run: |
