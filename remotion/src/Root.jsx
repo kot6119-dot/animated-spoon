@@ -6,6 +6,7 @@ import {
   useCurrentFrame,
   interpolate,
   useVideoConfig,
+  HtmlInCanvas,
 } from "remotion";
 import { shatter } from "@remotion/effects/shatter";
 import { Video } from "@remotion/media";
@@ -15,7 +16,6 @@ const DURATION = 8 * FPS;
 
 const GlassesBreak = () => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
   const start = 180;
   if (frame < start) return null;
 
@@ -24,78 +24,90 @@ const GlassesBreak = () => {
     extrapolateRight: "clamp",
   });
 
+  const leftEffect = shatter({
+    time: shatterTime,
+    pattern: "glass",
+    repetitions: 30,
+    center: [0.47, 0.40],
+    radius: 0.12,
+    strength: 7,
+    rotationSpeed: 0.35,
+    randomness: 0.18,
+    viscosity: 0.08,
+    massVariance: 0.35,
+    gravity: 1.2,
+    seed: 27,
+    extrusionDepth: 0.1,
+  });
+
+  const rightEffect = shatter({
+    time: shatterTime,
+    pattern: "glass",
+    repetitions: 30,
+    center: [0.55, 0.40],
+    radius: 0.12,
+    strength: 7,
+    rotationSpeed: 0.35,
+    randomness: 0.18,
+    viscosity: 0.08,
+    massVariance: 0.35,
+    gravity: 1.2,
+    seed: 43,
+    extrusionDepth: 0.1,
+  });
+
   return (
     <>
-      <svg width="0" height="0" style={{position: "absolute"}}>
-        <defs>
-          <clipPath id="leftLensShatterClip" clipPathUnits="userSpaceOnUse">
-            <path d="M 458 757 Q 468 730 501 729 Q 536 730 552 750 L 547 786 Q 528 808 496 805 Q 468 800 458 778 Z" />
-          </clipPath>
-          <clipPath id="rightLensShatterClip" clipPathUnits="userSpaceOnUse">
-            <path d="M 548 750 Q 566 730 599 731 Q 631 733 645 753 L 641 783 Q 625 805 592 807 Q 562 803 548 783 Z" />
-          </clipPath>
-        </defs>
-      </svg>
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          overflow: "hidden",
-          clipPath: "url(#leftLensShatterClip)",
-          pointerEvents: "none",
-        }}
+      <HtmlInCanvas
+        width={1080}
+        height={1920}
+        effects={[leftEffect]}
+        effectsOutputSize={{width: 1080, height: 1920}}
+        style={{position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none"}}
       >
-        <Video
-          src={staticFile("videos/content 3.mp4")}
-          muted
-          effects={[
-            shatter({
-              time: shatterTime,
-              pattern: "glass",
-              repetitions: 30,
-              center: [0.47, 0.40],
-              radius: 0.12,
-              strength: 7,
-              rotationSpeed: 0.35,
-              randomness: 0.18,
-              viscosity: 0.08,
-              massVariance: 0.35,
-              gravity: 1.2,
-              seed: 27,
-              extrusionDepth: 0.1,
-            }),
-          ]}
-          effectsOutputSize={{width: 1080, height: 1920}}
-          style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}
-        />
-      </div>
-      <div style={{position:"absolute",inset:0,width:"100%",height:"100%",overflow:"hidden",clipPath:"url(#rightLensShatterClip)",pointerEvents:"none"}}>
-        <Video
-          src={staticFile("videos/content 3.mp4")}
-          muted
-          effects={[
-            shatter({
-              time: shatterTime,
-              pattern: "glass",
-              repetitions: 30,
-              center: [0.55, 0.40],
-              radius: 0.12,
-              strength: 7,
-              rotationSpeed: 0.35,
-              randomness: 0.18,
-              viscosity: 0.08,
-              massVariance: 0.35,
-              gravity: 1.2,
-              seed: 43,
-              extrusionDepth: 0.1,
-            }),
-          ]}
-          effectsOutputSize={{width:1080,height:1920}}
-          style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain"}}
-        />
-      </div>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            overflow: "hidden",
+            clipPath: "path('M 458px 757px Q 468px 730px 501px 729px Q 536px 730px 552px 750px L 547px 786px Q 528px 808px 496px 805px Q 468px 800px 458px 778px Z')",
+          }}
+        >
+          <Video
+            src={staticFile("videos/content 3.mp4")}
+            muted
+            style={{position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain"}}
+          />
+        </div>
+      </HtmlInCanvas>
+
+      <HtmlInCanvas
+        width={1080}
+        height={1920}
+        effects={[rightEffect]}
+        effectsOutputSize={{width: 1080, height: 1920}}
+        style={{position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none"}}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            overflow: "hidden",
+            clipPath: "path('M 548px 750px Q 566px 730px 599px 731px Q 631px 733px 645px 753px L 641px 783px Q 625px 805px 592px 807px Q 562px 803px 548px 783px Z')",
+          }}
+        >
+          <Video
+            src={staticFile("videos/content 3.mp4")}
+            muted
+            style={{position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain"}}
+          />
+        </div>
+      </HtmlInCanvas>
+
       <svg
         viewBox="0 0 1080 1920"
         width="1080"
