@@ -33,7 +33,7 @@ const Main = () => (
       endAt={60}
     />
 
-    <Sequence from={65}>
+    <Sequence from={60}>
       <Audio
         src={staticFile("videos/content 6.mp3")}
         startFrom={60}
