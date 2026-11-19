@@ -5,17 +5,15 @@ import {
   Composition,
   OffthreadVideo,
   Sequence,
+  interpolate,
   staticFile,
 } from "remotion";
 
 const FPS = 30;
 const DURATION_IN_FRAMES = 154;
 
-// Grok timing notes applied:
-// - Advance the picture by 3 frames so the opening mouth movement leads the audio.
-// - Keep the first phrase at its original pace.
-// - Leave a 5-frame pause (about 0.17 s) before the second phrase.
-// - Speed up the second phrase slightly and soften its ending.
+// Keep the existing picture offset, pause, and slight second-line speed-up.
+// Smooth the small volume reduction so it does not happen as a sudden step.
 const Main = () => (
   <AbsoluteFill style={{ backgroundColor: "#000" }}>
     <OffthreadVideo
@@ -40,7 +38,12 @@ const Main = () => (
         src={staticFile("videos/content 6.mp3")}
         startFrom={60}
         playbackRate={1.06}
-        volume={(frame) => (frame >= 45 ? 0.88 : 1)}
+        volume={(frame) =>
+          interpolate(frame, [42, 48], [1, 0.88], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          })
+        }
       />
     </Sequence>
   </AbsoluteFill>
