@@ -1,12 +1,6 @@
 name: Render Remotion video
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'remotion/**'
-      - '.github/workflows/render-remotion.yml'
   workflow_dispatch:
     inputs:
       composition_id:
