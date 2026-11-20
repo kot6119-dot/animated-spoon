@@ -11,29 +11,37 @@ import { getVideoMetadata } from "@remotion/media-utils";
 
 const videoSrc = staticFile("videos/content 11.mp4");
 const SHAKE_START = 153; // 5.1 seconds at 30 fps
-const SHAKE_DURATION = 17; // about 0.57 seconds
+const SHAKE_DURATION = 14; // about 0.47 seconds
 
 const Main = () => {
   const frame = useCurrentFrame();
   const shakeFrame = frame - SHAKE_START;
-  const progress = interpolate(
-    shakeFrame,
-    [0, 3, 10, SHAKE_DURATION],
-    [1, 0.72, 0.32, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-  );
-  const intensity = 22 * progress;
+  const active = shakeFrame >= 0 && shakeFrame < SHAKE_DURATION;
+  const motionFrame = Math.max(0, shakeFrame);
+  const progress = active
+    ? interpolate(
+        motionFrame,
+        [0, 2, 8, SHAKE_DURATION],
+        [1, 0.82, 0.38, 0],
+        { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+      )
+    : 0;
+
+  // About 1.8x the previous camera movement, for a clearly readable jolt.
+  const intensity = 40 * progress;
   const translateX =
-    (Math.sin(shakeFrame * 3.1) + Math.cos(shakeFrame * 1.7) * 0.6) * intensity;
+    (Math.sin(motionFrame * 3.1) + Math.cos(motionFrame * 1.7) * 0.6) * intensity;
   const translateY =
-    (Math.cos(shakeFrame * 2.8) * 0.9 + Math.sin(shakeFrame * 1.9) * 0.5) * intensity;
-  const rotate = Math.sin(shakeFrame * 2.4) * intensity * 0.35;
-  const scale = interpolate(
-    shakeFrame,
-    [0, 3, 10, SHAKE_DURATION],
-    [1.07, 1.06, 1.03, 1],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-  );
+    (Math.cos(motionFrame * 2.8) * 0.9 + Math.sin(motionFrame * 1.9) * 0.5) * intensity;
+  const rotate = Math.sin(motionFrame * 2.4) * intensity * 0.35;
+  const scale = active
+    ? interpolate(
+        motionFrame,
+        [0, 2, 8, SHAKE_DURATION],
+        [1.07, 1.065, 1.025, 1],
+        { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+      )
+    : 1;
 
   return (
     <AbsoluteFill style={{ overflow: "hidden", backgroundColor: "black" }}>
