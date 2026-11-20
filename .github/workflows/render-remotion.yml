@@ -21,7 +21,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   render:
@@ -73,3 +73,35 @@ jobs:
           name: ${{ inputs.output_name || 'final-video' }}-iphone-final
           path: remotion/out/${{ inputs.output_name || 'final-video' }}-iPhone-compatible.mp4
           if-no-files-found: error
+
+      - name: Copy final MP4 into repository video folder
+        env:
+          OUTPUT_NAME: ${{ inputs.output_name || 'final-video' }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$OUTPUT_NAME" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "Invalid output_name. Use only letters, numbers, dots, underscores, and hyphens."
+            exit 1
+          fi
+          source="out/${OUTPUT_NAME}-iPhone-compatible.mp4"
+          destination="public/videos/${OUTPUT_NAME}-iPhone-compatible.mp4"
+          test -s "$source"
+          mkdir -p public/videos
+          cp "$source" "$destination"
+          echo "Saved rendered video to remotion/$destination"
+
+      - name: Commit rendered MP4 to repository
+        working-directory: .
+        env:
+          OUTPUT_NAME: ${{ inputs.output_name || 'final-video' }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "remotion/public/videos/${OUTPUT_NAME}-iPhone-compatible.mp4"
+          if git diff --cached --quiet; then
+            echo "Rendered MP4 is already up to date; no commit needed."
+          else
+            git commit -m "Save rendered video: ${OUTPUT_NAME}"
+            git push
+          fi
