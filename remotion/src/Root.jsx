@@ -3,58 +3,54 @@ import {
   AbsoluteFill,
   Composition,
   OffthreadVideo,
-  Sequence,
   staticFile,
   useCurrentFrame,
   interpolate,
 } from "remotion";
 import { getVideoMetadata } from "@remotion/media-utils";
 
-const INSERT_FRAMES = 39; // 1.3 seconds
-const OVERLAP_FRAMES = 10; // short dissolve into the main video
-const MAIN_START = INSERT_FRAMES - OVERLAP_FRAMES;
-const insertSrc = staticFile("videos/content 6.mp4");
-const mainSrc = staticFile("videos/cat-video-after-remotion-edit.MP4");
+const videoSrc = staticFile("videos/content 11.mp4");
+const SHAKE_START = 153; // 5.1 seconds at 30 fps
+const SHAKE_DURATION = 17; // about 0.57 seconds
 
-const InsertClip = () => {
+const Main = () => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(
-    frame,
-    [INSERT_FRAMES - OVERLAP_FRAMES, INSERT_FRAMES],
-    [1, 0],
+  const shakeFrame = frame - SHAKE_START;
+  const progress = interpolate(
+    shakeFrame,
+    [0, 3, 10, SHAKE_DURATION],
+    [1, 0.72, 0.32, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
+  const intensity = 22 * progress;
+  const translateX =
+    (Math.sin(shakeFrame * 3.1) + Math.cos(shakeFrame * 1.7) * 0.6) * intensity;
+  const translateY =
+    (Math.cos(shakeFrame * 2.8) * 0.9 + Math.sin(shakeFrame * 1.9) * 0.5) * intensity;
+  const rotate = Math.sin(shakeFrame * 2.4) * intensity * 0.35;
+  const scale = interpolate(
+    shakeFrame,
+    [0, 3, 10, SHAKE_DURATION],
+    [1.07, 1.06, 1.03, 1],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
   return (
-    <OffthreadVideo
-      src={insertSrc}
-      startFrom={60}
-      endAt={96}
-      volume={0}
-      style={{
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-        opacity,
-      }}
-    />
+    <AbsoluteFill style={{ overflow: "hidden", backgroundColor: "black" }}>
+      <OffthreadVideo
+        src={videoSrc}
+        volume={1}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}deg) scale(${scale})`,
+          transformOrigin: "center center",
+        }}
+      />
+    </AbsoluteFill>
   );
 };
-
-const Main = () => (
-  <AbsoluteFill>
-    <Sequence from={MAIN_START}>
-      <OffthreadVideo
-        src={mainSrc}
-        startFrom={0}
-        style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scale(1.55)" }}
-      />
-    </Sequence>
-    <Sequence from={0} durationInFrames={INSERT_FRAMES}>
-      <InsertClip />
-    </Sequence>
-  </AbsoluteFill>
-);
 
 export const RemotionRoot = () => (
   <Composition
@@ -65,10 +61,9 @@ export const RemotionRoot = () => (
     width={1080}
     height={1920}
     calculateMetadata={async () => {
-      const metadata = await getVideoMetadata(mainSrc);
-      const mainFrames = Math.ceil(metadata.durationInSeconds * 30);
+      const metadata = await getVideoMetadata(videoSrc);
       return {
-        durationInFrames: MAIN_START + Math.max(1, mainFrames),
+        durationInFrames: Math.max(1, Math.ceil(metadata.durationInSeconds * 30)),
       };
     }}
   />
