@@ -33,12 +33,12 @@ const Main = () => {
     (Math.sin(motionFrame * 3.1) + Math.cos(motionFrame * 1.7) * 0.6) * intensity;
   const translateY =
     (Math.cos(motionFrame * 2.8) * 0.9 + Math.sin(motionFrame * 1.9) * 0.5) * intensity;
-  const rotate = Math.sin(motionFrame * 2.4) * intensity * 0.35;
+  const rotate = Math.sin(motionFrame * 2.4) * intensity * 0.06;
   const scale = active
     ? interpolate(
         motionFrame,
         [0, 2, 8, SHAKE_DURATION],
-        [1.07, 1.065, 1.025, 1],
+        [1.20, 1.18, 1.12, 1.08],
         { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
       )
     : 1;
