@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "remotion/src/Root.jsx"
+      - "remotion/public/videos/**"
   workflow_dispatch:
     inputs:
       composition_id:
