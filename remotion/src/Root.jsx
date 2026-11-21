@@ -1,3 +1,4 @@
+// Render trigger: combine the selected video with the opening sound effect.
 import React from "react";
 import { AbsoluteFill, Audio, Composition, OffthreadVideo, staticFile } from "remotion";
 
