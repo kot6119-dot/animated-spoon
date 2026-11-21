@@ -72,6 +72,17 @@ jobs:
             --gl=swangle \
             --preferred-effect-backend=webgpu
 
+      - name: Fill black bars with blurred scene background
+        run: |
+          INPUT="out/$OUTPUT_NAME-iPhone-compatible.mp4"
+          FIXED="out/$OUTPUT_NAME-iPhone-compatible-fixed.mp4"
+          ffmpeg -y -i "$INPUT" \
+            -filter_complex "[0:v]split=2[fgsrc][bgsrc];[fgsrc]crop=1080:1238:0:340[fg];[bgsrc]crop=1080:1238:0:340,scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=35:12[bg];[0:v][bg]overlay=0:0:enable='gte(t,1.5)'[base];[base][fg]overlay=0:341:enable='gte(t,1.5)'[v]" \
+            -map "[v]" -map 0:a:0 \
+            -c:v libx264 -profile:v high -level 4.1 -preset slow -crf 17 \
+            -pix_fmt yuv420p -r 30 -c:a copy -movflags +faststart "$FIXED"
+          mv "$FIXED" "$INPUT"
+
       - name: Upload final iPhone-ready video
         id: upload
         uses: actions/upload-artifact@v4
