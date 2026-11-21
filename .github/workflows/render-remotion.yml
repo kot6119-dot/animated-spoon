@@ -6,7 +6,6 @@ on:
     paths:
       - "remotion/src/Root.jsx"
       - "remotion/public/videos/**"
-      - ".github/workflows/render-remotion.yml"
   workflow_dispatch:
     inputs:
       composition_id:
