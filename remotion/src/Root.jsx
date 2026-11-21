@@ -2,6 +2,7 @@ import React from "react";
 import {
   AbsoluteFill,
   Composition,
+  Easing,
   OffthreadVideo,
   Sequence,
   interpolate,
@@ -11,8 +12,8 @@ import {
 import { getVideoMetadata } from "@remotion/media-utils";
 
 const FPS = 30;
-const DISSOLVE_FRAMES = 9;
-const FILM_BURN_FRAMES = 12;
+const DISSOLVE_FRAMES = 15;
+const FILM_BURN_FRAMES = 18;
 
 const sceneFiles = [
   "videos/scene-one.mp4",
@@ -24,9 +25,13 @@ const FilmBurn = () => {
   const frame = useCurrentFrame();
   const opacity = interpolate(
     frame,
-    [0, 3, FILM_BURN_FRAMES - 1],
-    [0, 0.82, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    [0, 5, FILM_BURN_FRAMES - 1],
+    [0, 0.62, 0],
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.inOut(Easing.quad),
+    },
   );
 
   return (
@@ -67,25 +72,41 @@ const Main = ({ sceneDurations }) => {
     frame,
     [first - DISSOLVE_FRAMES, first],
     [1, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.inOut(Easing.quad),
+    },
   );
   const secondOpacity = interpolate(
     frame,
     [secondStart, secondStart + DISSOLVE_FRAMES],
     [0, 1],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.inOut(Easing.quad),
+    },
   );
   const secondFadeOut = interpolate(
     frame,
     [thirdStart, thirdStart + FILM_BURN_FRAMES],
     [1, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.inOut(Easing.quad),
+    },
   );
   const thirdOpacity = interpolate(
     frame,
     [thirdStart, thirdStart + FILM_BURN_FRAMES],
     [0, 1],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.inOut(Easing.quad),
+    },
   );
 
   return (
