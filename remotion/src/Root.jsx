@@ -23,4 +23,4 @@ export const RemotionRoot = () => (
   />
 );
 
-// Save the approved third-scene render in the repository video folder.
+// Trigger corrected third-scene render with the foreground edge aligned to remove the dark seam.
