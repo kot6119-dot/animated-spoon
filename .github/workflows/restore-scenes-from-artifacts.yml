@@ -1,0 +1,61 @@
+name: Restore scenes two and three from verified artifacts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/restore-scenes-from-artifacts.yml"
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download verified scene two artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: final-video-iphone-final
+          path: /tmp/scene-two
+          repository: kot6119-dot/animated-spoon
+          run-id: 44908864895
+          github-token: ${{ github.token }}
+
+      - name: Download verified original scene three artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cat-video-glasses-effect
+          path: /tmp/scene-three
+          repository: kot6119-dot/animated-spoon
+          run-id: 44901244666
+          github-token: ${{ github.token }}
+
+      - name: Restore the two independent scene files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s /tmp/scene-two/final-video-iPhone-compatible.mp4
+          test -s /tmp/scene-three/smartphone-notification.mp4
+          mkdir -p remotion/public/videos
+          cp /tmp/scene-two/final-video-iPhone-compatible.mp4 remotion/public/videos/scene-two.mp4
+          cp /tmp/scene-three/smartphone-notification.mp4 remotion/public/videos/scene-three.mp4
+          echo "Restored scene file checksums:"
+          sha256sum remotion/public/videos/scene-two.mp4 remotion/public/videos/scene-three.mp4
+          echo "Restored scene metadata:"
+          ffprobe -v error -show_entries format=duration,size:stream=codec_name,codec_type,width,height -of json remotion/public/videos/scene-two.mp4
+          ffprobe -v error -show_entries format=duration,size:stream=codec_name,codec_type,width,height -of json remotion/public/videos/scene-three.mp4
+
+      - name: Commit only the restored scene files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add remotion/public/videos/scene-two.mp4 remotion/public/videos/scene-three.mp4
+          if ! git diff --cached --quiet; then
+            git commit -m "[skip ci] Restore scene two and original scene three from artifacts"
+            git push
+          fi
