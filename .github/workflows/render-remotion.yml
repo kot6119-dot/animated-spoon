@@ -5,7 +5,6 @@ on:
     branches: [main]
     paths:
       - "remotion/src/Root.jsx"
-      - "remotion/public/videos/**"
   workflow_dispatch:
     inputs:
       composition_id:
@@ -96,6 +95,52 @@ jobs:
           path: remotion/out/${{ env.OUTPUT_NAME }}-iPhone-compatible.mp4
           if-no-files-found: error
           retention-days: 7
+
+      - name: Remove unused source files after successful render
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const referenced = new Set();
+
+            async function scan(path) {
+              const response = await github.rest.repos.getContent({ owner, repo, path });
+              const entries = Array.isArray(response.data) ? response.data : [response.data];
+              for (const entry of entries) {
+                if (entry.type === "dir") {
+                  await scan(entry.path);
+                } else if (entry.type === "file" && /\\.(js|jsx|ts|tsx|json)$/.test(entry.name)) {
+                  const file = await github.rest.repos.getContent({ owner, repo, path: entry.path });
+                  const source = Buffer.from(file.data.content, "base64").toString("utf8");
+                  for (const match of source.matchAll(/videos\\/([^"'\\x60\\s)]+)/g)) {
+                    referenced.add(match[1]);
+                  }
+                }
+              }
+            }
+
+            await scan("remotion/src");
+            const directory = await github.rest.repos.getContent({
+              owner, repo, path: "remotion/public/videos"
+            });
+            for (const file of directory.data) {
+              if (
+                file.type === "file" &&
+                file.name !== ".gitkeep" &&
+                !referenced.has(file.name)
+              ) {
+                await github.rest.repos.deleteFile({
+                  owner,
+                  repo,
+                  path: file.path,
+                  message: "Clean unused Remotion source asset after successful render",
+                  sha: file.sha,
+                  branch: context.ref.replace("refs/heads/", "")
+                });
+                core.info(`Removed unused source asset: ${file.name}`);
+              }
+            }
 
       - name: Remove older Remotion render artifacts
         uses: actions/github-script@v7
