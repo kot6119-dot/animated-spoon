@@ -1,6 +1,12 @@
 name: Render Remotion video
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "remotion/src/Root.jsx"
+      - "remotion/public/videos/**"
+      - ".github/workflows/render-remotion.yml"
   workflow_dispatch:
     inputs:
       composition_id:
@@ -20,6 +26,9 @@ permissions:
 jobs:
   render:
     runs-on: ubuntu-latest
+    env:
+      COMPOSITION_ID: ${{ inputs.composition_id || 'Main' }}
+      OUTPUT_NAME: ${{ inputs.output_name || 'final-video' }}
     defaults:
       run:
         working-directory: remotion
@@ -50,22 +59,22 @@ jobs:
         run: npx remotion compositions src/index.jsx
 
       - name: Render selected composition
-        run: npx remotion render src/index.jsx "${{ inputs.composition_id }}" "out/${{ inputs.output_name }}-video-only.mp4" --codec=h264 --gl=swangle --preferred-effect-backend=webgpu
+        run: npx remotion render src/index.jsx "$COMPOSITION_ID" "out/$OUTPUT_NAME-video-only.mp4" --codec=h264 --gl=swangle --preferred-effect-backend=webgpu
 
       - name: Export iPhone-ready MP4 (H.264 Main, 1080x1920, AAC)
         run: |
-          ffmpeg -y -i "out/${{ inputs.output_name }}-video-only.mp4" \
+          ffmpeg -y -i "out/$OUTPUT_NAME-video-only.mp4" \
             -map 0:v:0 -map 0:a:0? \
             -vf "scale=1080:1920:flags=lanczos,setsar=1,fps=30,format=yuv420p" \
             -c:v libx264 -profile:v main -level:v 4.0 -preset medium -crf 18 \
             -c:a aac -b:a 192k -ar 48000 -ac 2 \
-            -movflags +faststart "out/${{ inputs.output_name }}-iPhone-compatible.mp4"
+            -movflags +faststart "out/$OUTPUT_NAME-iPhone-compatible.mp4"
 
       - name: Upload final iPhone-compatible video
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.output_name }}-iphone-final
-          path: remotion/out/${{ inputs.output_name }}-iPhone-compatible.mp4
+          name: ${{ env.OUTPUT_NAME }}-iphone-final
+          path: remotion/out/${{ env.OUTPUT_NAME }}-iPhone-compatible.mp4
           if-no-files-found: error
 
       - name: Report output
