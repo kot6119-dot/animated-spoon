@@ -1,0 +1,24 @@
+name: Rename scene video to English
+
+on:
+  push:
+    paths:
+      - ".github/workflows/rename-scene-video.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Rename video
+        run: |
+          set -e
+          git mv "remotion/public/videos/сцена первая.mp4" "remotion/public/videos/scene-one.mp4"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Rename scene video to scene-one.mp4"
+          git push
