@@ -1,17 +1,15 @@
 import React from "react";
-import { AbsoluteFill, Composition } from "remotion";
+import { AbsoluteFill, Audio, Composition, OffthreadVideo, staticFile } from "remotion";
 
-// Clean starter composition.
-// No old video, audio, or scene references are kept here.
-// After a new source clip is uploaded, connect it to this composition deliberately.
 const Main = () => (
-  <AbsoluteFill
-    style={{
-      backgroundColor: "#111111",
-      justifyContent: "center",
-      alignItems: "center",
-    }}
-  />
+  <AbsoluteFill style={{ backgroundColor: "#000" }}>
+    <OffthreadVideo
+      src={staticFile("videos/content 10.mp4")}
+      muted
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+    <Audio src={staticFile("videos/soundtrack_7sec_voice_overlay.mp3")} />
+  </AbsoluteFill>
 );
 
 export const RemotionRoot = () => (
