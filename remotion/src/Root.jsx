@@ -22,3 +22,5 @@ export const RemotionRoot = () => (
     height={1920}
   />
 );
+
+// Save the approved third-scene render in the repository video folder.
