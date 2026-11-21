@@ -1,0 +1,39 @@
+name: Copy rendered video into project
+
+on:
+  push:
+    paths:
+      - ".github/workflows/copy-rendered-video.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download the successful render artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ARTIFACT_ID: "14699179704"
+        run: |
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/actions/artifacts/$ARTIFACT_ID/zip" -o /tmp/render.zip
+          mkdir -p /tmp/render
+          unzip -o /tmp/render.zip -d /tmp/render
+          test -s /tmp/render/final-video-iPhone-compatible.mp4
+          mkdir -p remotion/public/videos
+          cp /tmp/render/final-video-iPhone-compatible.mp4 "remotion/public/videos/сцена первая.mp4"
+
+      - name: Commit video to the Videos folder
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "remotion/public/videos/сцена первая.mp4"
+          git commit -m "Add rendered video: сцена первая"
+          git push
