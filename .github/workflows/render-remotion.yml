@@ -72,6 +72,11 @@ jobs:
             --gl=swangle \
             --preferred-effect-backend=webgpu
 
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
       - name: Fill black bars with blurred scene background
         run: |
           INPUT="out/$OUTPUT_NAME-iPhone-compatible.mp4"
