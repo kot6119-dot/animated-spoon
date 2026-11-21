@@ -1,28 +1,29 @@
 # Remotion Studio
 
-Clean vertical video workspace.
+Clean workspace for creating new vertical videos.
+
+## Project baseline
 
 - Remotion and @remotion/cli are pinned to 4.0.544.
 - React and React DOM are pinned to 18.3.1.
-- Starter composition: Main, 1080x1920, 30 fps.
+- Main composition: 1080x1920, 30 fps, 10-second empty starter.
+- Source media folder: `public/videos/`.
+- Render output: `out/` (downloaded as a GitHub Actions artifact).
 
-## Media cleanup and replacement rules
+## Clean-start rules
 
-Follow these rules automatically for every new video upload. Do not ask the user again what to do with old files.
+1. Start every new video from the current `src/Root.jsx`. It contains no old scene, audio, or video references.
+2. Put new source media only in `public/videos/`.
+3. Before connecting a source, inspect the folder and confirm its exact filename.
+4. Update `src/Root.jsx` deliberately to use only the new project's media. Never guess filenames.
+5. Keep the `Main` composition unless a separate composition is intentionally needed.
+6. Do not copy rendered MP4 files back into `public/videos/`. Rendered files belong in `out/` and are delivered as workflow artifacts.
+7. Rendering is manual only: use Actions → Render Remotion video → Run workflow. Uploading a source file does not start a render.
+8. Do not delete files whose purpose or references have not been checked.
 
-1. Before uploading, inspect `public/videos/` and identify the current source files.
-2. When the user supplies a new source for the same scene or project, treat it as the replacement for the previous source.
-3. Upload the new source first. Verify that it exists and that the active composition points to it.
-4. Only after verification, delete obsolete project-specific source copies and unused intermediate renders from this project. Keep one current source for each active scene.
-5. Never delete a file that is still referenced by `src/Root.jsx`, an active composition, or a workflow.
-6. Never delete shared sound libraries, common tools, export settings, GitHub Actions workflows, or unrelated project assets.
-7. Preserve the existing `Main` composition and the `main` branch unless the user explicitly asks to change them. Use a separate test branch for experiments.
-8. After a video is completed or abandoned, remove only that video's project-specific source media and temporary renders, after checking references. Keep reusable shared assets.
-9. If a file's purpose is unclear, leave it in place and report it rather than deleting it.
+## Render settings
 
-## Source media
-
-Source media belongs in `public/` only when needed for an active project. Use clear, stable filenames and update the matching source reference in the composition whenever a file is replaced.
+The workflow exports an iPhone-compatible MP4: H.264 Main, 1080x1920, 30 fps, AAC audio.
 
 ## Local commands
 
@@ -32,5 +33,3 @@ npm install
 npm run studio
 npm run render
 ```
-
-The GitHub Actions workflow renders the selected composition and exports an iPhone-compatible MP4 (H.264 Main, 1080x1920, AAC).
