@@ -4,11 +4,10 @@ import { AbsoluteFill, Audio, Composition, OffthreadVideo, staticFile } from "re
 const Main = () => (
   <AbsoluteFill style={{ backgroundColor: "#000" }}>
     <OffthreadVideo
-      src={staticFile("videos/content 10.mp4")}
-      muted
+      src={staticFile("videos/final-video-iPhone-compatible 3.MP4")}
       style={{ width: "100%", height: "100%", objectFit: "cover" }}
     />
-    <Audio src={staticFile("videos/soundtrack_7sec_voice_overlay.mp3")} />
+    <Audio src={staticFile("videos/cow_glass_bright_siren_very_low 2.mp3")} startFrom={0} />
   </AbsoluteFill>
 );
 
