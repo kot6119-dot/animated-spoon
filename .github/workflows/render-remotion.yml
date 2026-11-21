@@ -1,12 +1,6 @@
 name: Render Remotion video
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'remotion/**'
-      - '.github/workflows/render-remotion.yml'
   workflow_dispatch:
     inputs:
       composition_id:
@@ -21,7 +15,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   render:
@@ -56,52 +50,23 @@ jobs:
         run: npx remotion compositions src/index.jsx
 
       - name: Render selected composition
-        run: npx remotion render src/index.jsx "${{ inputs.composition_id || 'Main' }}" "out/${{ inputs.output_name || 'final-video' }}-video-only.mp4" --codec=h264 --gl=swangle --preferred-effect-backend=webgpu
+        run: npx remotion render src/index.jsx "${{ inputs.composition_id }}" "out/${{ inputs.output_name }}-video-only.mp4" --codec=h264 --gl=swangle --preferred-effect-backend=webgpu
 
       - name: Export iPhone-ready MP4 (H.264 Main, 1080x1920, AAC)
         run: |
-          ffmpeg -y -i "out/${{ inputs.output_name || 'final-video' }}-video-only.mp4" \
+          ffmpeg -y -i "out/${{ inputs.output_name }}-video-only.mp4" \
             -map 0:v:0 -map 0:a:0? \
             -vf "scale=1080:1920:flags=lanczos,setsar=1,fps=30,format=yuv420p" \
             -c:v libx264 -profile:v main -level:v 4.0 -preset medium -crf 18 \
             -c:a aac -b:a 192k -ar 48000 -ac 2 \
-            -movflags +faststart "out/${{ inputs.output_name || 'final-video' }}-iPhone-compatible.mp4"
+            -movflags +faststart "out/${{ inputs.output_name }}-iPhone-compatible.mp4"
 
       - name: Upload final iPhone-compatible video
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.output_name || 'final-video' }}-iphone-final
-          path: remotion/out/${{ inputs.output_name || 'final-video' }}-iPhone-compatible.mp4
+          name: ${{ inputs.output_name }}-iphone-final
+          path: remotion/out/${{ inputs.output_name }}-iPhone-compatible.mp4
           if-no-files-found: error
 
-      - name: Copy final MP4 into repository video folder
-        env:
-          OUTPUT_NAME: ${{ inputs.output_name || 'final-video' }}
-        run: |
-          set -euo pipefail
-          if [[ ! "$OUTPUT_NAME" =~ ^[A-Za-z0-9._-]+$ ]]; then
-            echo "Invalid output_name. Use only letters, numbers, dots, underscores, and hyphens."
-            exit 1
-          fi
-          source="out/${OUTPUT_NAME}-iPhone-compatible.mp4"
-          destination="public/videos/${OUTPUT_NAME}-iPhone-compatible.mp4"
-          test -s "$source"
-          mkdir -p public/videos
-          cp "$source" "$destination"
-          echo "Saved rendered video to remotion/$destination"
-
-      - name: Commit rendered MP4 to repository
-        working-directory: .
-        env:
-          OUTPUT_NAME: ${{ inputs.output_name || 'final-video' }}
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "remotion/public/videos/${OUTPUT_NAME}-iPhone-compatible.mp4"
-          if git diff --cached --quiet; then
-            echo "Rendered MP4 is already up to date; no commit needed."
-          else
-            git commit -m "Save rendered video: ${OUTPUT_NAME}"
-            git push
-          fi
+      - name: Report output
+        run: echo "Final video is available in the workflow Artifacts. Source files were not changed."
