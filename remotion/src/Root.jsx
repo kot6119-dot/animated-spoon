@@ -1,4 +1,4 @@
-// Render trigger: fill black bars with a blurred scene background in the final MP4.
+// Render trigger: corrected blurred background pass; preserve the existing video and audio.
 import React from "react";
 import { AbsoluteFill, Audio, Composition, OffthreadVideo, staticFile } from "remotion";
 
