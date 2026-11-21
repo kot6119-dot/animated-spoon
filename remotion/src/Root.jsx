@@ -1,4 +1,4 @@
-// Render trigger: combine the selected video with the opening sound effect.
+// Render trigger: fill black bars with a blurred scene background in the final MP4.
 import React from "react";
 import { AbsoluteFill, Audio, Composition, OffthreadVideo, staticFile } from "remotion";
 
