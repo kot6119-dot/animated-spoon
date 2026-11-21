@@ -1,14 +1,13 @@
-// Render trigger: corrected blurred background pass; preserve the existing video and audio.
 import React from "react";
 import { AbsoluteFill, Audio, Composition, OffthreadVideo, staticFile } from "remotion";
 
 const Main = () => (
   <AbsoluteFill style={{ backgroundColor: "#000" }}>
     <OffthreadVideo
-      src={staticFile("videos/final-video-iPhone-compatible 3.MP4")}
+      src={staticFile("videos/тест 34.MP4")}
       style={{ width: "100%", height: "100%", objectFit: "cover" }}
     />
-    <Audio src={staticFile("videos/cow_glass_bright_siren_very_low 2.mp3")} startFrom={0} />
+    <Audio src={staticFile("videos/cow_video_audio_mix_v1.mp3")} startFrom={0} />
   </AbsoluteFill>
 );
 
@@ -22,5 +21,3 @@ export const RemotionRoot = () => (
     height={1920}
   />
 );
-
-// Trigger corrected third-scene render with the foreground edge aligned to remove the dark seam.
