@@ -35,6 +35,11 @@ jobs:
           run-id: 44901244666
           github-token: ${{ github.token }}
 
+      - name: Install FFmpeg for metadata verification
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
       - name: Restore the two independent scene files
         shell: bash
         run: |
