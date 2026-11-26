@@ -1,0 +1,13 @@
+{
+  "url": "https://51e4bccd91f80ce83f.gradio.live",
+  "parameters": {
+    "enh_pos": "A realistic red apple on a wooden table, gentle sunlight, slow camera movement, cinematic",
+    "enh_neg": "blurry, distorted, flickering, text",
+    "q": "480p",
+    "asp": "1:1",
+    "dur_label": "3",
+    "seed": -1,
+    "img": null,
+    "lstr": 1
+  }
+}
