@@ -30,6 +30,19 @@ jobs:
           }
           if args.get('asp') in aspect_aliases:
               args['asp'] = aspect_aliases[args['asp']]
+          duration_aliases = {
+              '3': '3s (native)',
+              '5': '5s (native)',
+              '8': '8s (native)',
+              '10': '10s (native)',
+              '12': '12s (native)',
+              '15': '15s (native)',
+              '20': '20s (2 chunks)',
+              '25': '25s (3 chunks)',
+              '30': '30s (3 chunks)',
+          }
+          if str(args.get('dur_label')) in duration_aliases:
+              args['dur_label'] = duration_aliases[str(args['dur_label'])]
           if args.get('img'):
               args['img']=handle_file(args['img'])
           result=c.predict(api_name='/on_gen', **args)
