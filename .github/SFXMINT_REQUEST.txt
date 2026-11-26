@@ -1,3 +1,0 @@
-category=Effects
-query=dried peas beans lentils pouring spilling scattering bouncing onto wooden table close up foley
-request_id=peas-beans-spilling-wood-table-preview-2026-11-12

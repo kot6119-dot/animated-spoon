@@ -1,2 +1,0 @@
-query=busy Moscow city street traffic cars street level wide road
-request_id=moscow-traffic-cat-driver-2026-11-14
