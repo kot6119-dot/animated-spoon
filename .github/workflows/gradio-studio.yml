@@ -1,0 +1,29 @@
+name: Gradio Studio API
+on:
+  workflow_dispatch:
+    inputs:
+      studio_url:
+        description: Current Gradio URL
+        required: true
+        default: 'https://51e4bccd91f80ce83f.gradio.live'
+  push:
+    paths:
+      - '.github/workflows/gradio-studio.yml'
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install gradio_client
+      - name: Inspect live API
+        env:
+          STUDIO_URL: ${{ inputs.studio_url || 'https://51e4bccd91f80ce83f.gradio.live' }}
+        run: |
+          python - <<'PY'
+          import os
+          from gradio_client import Client
+          client = Client(os.environ['STUDIO_URL'])
+          client.view_api()
+          PY
