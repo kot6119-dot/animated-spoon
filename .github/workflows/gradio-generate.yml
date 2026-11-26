@@ -22,6 +22,14 @@ jobs:
           r=json.loads(pathlib.Path('studio-request.json').read_text())
           c=Client(r['url'])
           args=r['parameters']
+          aspect_aliases = {
+              '16:9': '16:9 Landscape',
+              '9:16': '9:16 Portrait',
+              '4:3': '4:3 Standard',
+              '1:1': '1:1 Square',
+          }
+          if args.get('asp') in aspect_aliases:
+              args['asp'] = aspect_aliases[args['asp']]
           if args.get('img'):
               args['img']=handle_file(args['img'])
           result=c.predict(api_name='/on_gen', **args)
