@@ -1,14 +1,14 @@
 {
-  "url": "https://4bb33c0251b945a8e1.gradio.live",
-  "request_id": "room-camera-test-1",
+  "url": "https://56f67d250489f08d82.gradio.live",
+  "request_id": "room-camera-i2v-1",
   "parameters": {
-    "enh_pos": "A small room with ordinary furnishings. Realistic handheld smartphone footage. The camera initially focuses on a suitcase, then slowly pans toward a desk with a computer and stops, focusing on the monitor. Natural indoor lighting, continuous shot, no cuts.",
-    "enh_neg": "blurry, distorted, flickering, abrupt cuts, warped objects",
+    "enh_pos": "Amateur smartphone footage in a small ordinary room. The camera starts focused on the suitcase, then slowly tilts up and moves toward the desk with the computer, finally stopping on the monitor. Subtle realistic handheld camera shake, natural indoor lighting, continuous shot, no cuts. Preserve the room and objects in the reference image.",
+    "enh_neg": "blurry, distorted, flickering, abrupt cuts, warped objects, excessive camera shake",
     "q": "720p",
     "asp": "9:16",
-    "dur_label": "5",
+    "dur_label": "8",
     "seed": -1,
-    "img": null,
+    "img": "room-with-suitcase.jpeg",
     "lstr": 1
   }
 }
